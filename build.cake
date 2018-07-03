@@ -92,6 +92,7 @@ Task("Upload-Test-Results")
 });
 
 Task("Default")
-    .IsDependentOn("Upload-Artifacts");
+    .IsDependentOn("Upload-Artifacts")
+    .IsDependentOn("Upload-Test-Results");
 
 RunTarget(target);

@@ -68,7 +68,7 @@ Task("Upload-Artifacts")
     .IsDependentOn("Pack-Library")
     .Does(() =>
 {
-    foreach (var filePath in GetFiles("./artifacts/")) 
+    foreach (var filePath in GetFiles("./artifacts/*")) 
     { 
         if (AppVeyor.IsRunningOnAppVeyor)
         {

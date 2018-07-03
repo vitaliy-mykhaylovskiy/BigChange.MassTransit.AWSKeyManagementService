@@ -34,17 +34,19 @@ Task("Build")
 
 Task("Run-Unit-Tests")
     .IsDependentOn("Build")
-    .WithCriteria(false)
     .Does(() =>
 {
-    var testAssemblies = GetFiles("./test/**/*.csproj");
+    var settings = new DotNetCoreTestSettings
+    {
+        Configuration = configuration,
+        Logger = "trx",
+    };
 
-    Console.WriteLine($"test count: {testAssemblies.Count}");
-
-    foreach(var t in testAssemblies){
-        Console.WriteLine(t);
+    var projectFiles = GetFiles("./test/**/*.csproj");
+    foreach(var file in projectFiles)
+    {
+        DotNetCoreTest(file.FullPath, settings);
     }
-    NUnit3(testAssemblies);
 });
 
 Task("Pack-Library")
@@ -70,13 +72,22 @@ Task("Upload-Artifacts")
 {
     foreach (var filePath in GetFiles("./artifacts/*")) 
     { 
-        if (AppVeyor.IsRunningOnAppVeyor)
+        AppVeyor.UploadArtifact(filePath, new AppVeyorUploadArtifactsSettings
         {
-            AppVeyor.UploadArtifact(filePath, new AppVeyorUploadArtifactsSettings
-            {
-                DeploymentName = filePath.GetFilename().ToString()
-            });
-        }
+            DeploymentName = filePath.GetFilename().ToString()
+        });
+    }
+});
+
+
+Task("Upload-Test-Results")
+    .WithCriteria(BuildSystem.IsRunningOnAppVeyor)
+    .IsDependentOn("Run-Unit-Tests")
+    .Does(() =>
+{
+    foreach (var filePath in GetFiles("./test/**/TestResults/*.trx")) 
+    { 
+        AppVeyor.UploadTestResults(filePath, AppVeyorTestResultsType.MSTest);
     }
 });
 

@@ -4,6 +4,22 @@ var configuration = Argument("configuration", "Release");
 var sln = "./BigChange.MassTransit.AwsKeyManagementService.sln";
 var version = EnvironmentVariable("APPVEYOR_BUILD_VERSION") ?? "0.0.0";
 
+IProcess rabbitMqProcess = null;
+
+Setup(context =>
+{
+    var resource = DownloadFile("https://github.com/rabbitmq/rabbitmq-server/releases/download/v3.7.6/rabbitmq-server-windows-3.7.6.zip");
+
+    Unzip(resource, "./rabbitmq");
+
+    rabbitMqProcess = StartAndReturnProcess("./rabbitmq/rabbitmq_server-3.7.6/sbin/rabbitmq-server.bat");
+});
+
+Teardown(context =>
+{
+    rabbitMqProcess.Kill();
+});
+
 Task("Clean")
     .Does(() =>
 {

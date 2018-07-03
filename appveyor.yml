@@ -1,0 +1,30 @@
+image: Visual Studio 2017
+
+skip_tags: true
+
+configuration:
+  - Release
+
+build_script:
+  - ps: .\build.ps1
+
+test: off
+
+for:
+-
+  branches:
+    only:
+      - master
+
+  version: 0.0.{build}
+
+  deploy:
+    - provider: Environment
+      name: NuGet.org
+
+-
+  branches:
+    except:
+    - master
+
+  version: 0.0.0.{build}-{branch}

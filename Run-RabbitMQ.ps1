@@ -1,14 +1,20 @@
-Write-Output "Downloading RabbitMQ 3.7.5"
+Write-Host "Installing RabbitMQ..." -ForegroundColor Cyan
 
-$tempPath = (Join-Path ([System.IO.Path]::GetTempPath())([System.Guid]::NewGuid()))
-New-Item $tempPath -Type Directory
+Write-Host "Downloading..."
+$exePath = "$($env:USERPROFILE)\rabbitmq-server-3.5.4.exe"
+(New-Object Net.WebClient).DownloadFile('http://www.rabbitmq.com/releases/rabbitmq-server/v3.5.4/rabbitmq-server-3.5.4.exe', $exePath)
 
-Invoke-WebRequest -Uri "https://github.com/rabbitmq/rabbitmq-server/releases/download/v3.7.5/rabbitmq-server-windows-3.7.5.zip" -OutFile "$tempPath/rabbitmq-server-windows-3.7.5.zip"
+Write-Host "Installing..."
+cmd /c start /wait $exePath /S
 
-Write-Output "Extracting RabbitMQ Archive"
+$rabbitPath = 'C:\Program Files (x86)\RabbitMQ Server\rabbitmq_server-3.5.4'
 
-Expand-Archive "$tempPath/rabbitmq-server-windows-3.7.5.zip" -DestinationPath "$tempPath/rabbitmq-server-windows"
+Write-Host "Installing service..."
+Start-Process -Wait "$rabbitPath\sbin\rabbitmq-service.bat" "install"
 
-Write-Output "Running RabbitMQ"
+Write-Host "Starting service..."
+Start-Process -Wait "$rabbitPath\sbin\rabbitmq-service.bat" "start"
 
-Start-Process "$tempPath/rabbitmq-server-windows/rabbitmq_server-3.7.5/sbin/rabbitmq-server.bat" -WindowStyle Hidden
+Get-Service "RabbitMQ"
+
+Write-Host "RabbitMQ installed and started" -ForegroundColor Green

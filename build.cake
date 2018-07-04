@@ -8,20 +8,20 @@ IProcess rabbitMqProcess = null;
 
 Setup(context =>
 {
-    Information("Downloading RabbitMQ v3.7.6");
-    var resource = DownloadFile("https://github.com/rabbitmq/rabbitmq-server/releases/download/v3.7.6/rabbitmq-server-windows-3.7.6.zip");
+    Information("Downloading RabbitMQ v3.7.5");
+    var resource = DownloadFile("https://github.com/rabbitmq/rabbitmq-server/releases/download/v3.7.5/rabbitmq-server-windows-3.7.5.zip");
 
-    Information("Unzip RabbitMQ v3.7.6");
+    Information("Unzip RabbitMQ v3.7.5");
     Unzip(resource, "./rabbitmq");
 
-    Information("Starting RabbitMQ v3.7.6");
-    rabbitMqProcess = StartAndReturnProcess("./rabbitmq/rabbitmq_server-3.7.6/sbin/rabbitmq-server.bat");
+    Information("Starting RabbitMQ v3.7.5");
+    rabbitMqProcess = StartAndReturnProcess("./rabbitmq/rabbitmq_server-3.7.5/sbin/rabbitmq-server.bat");
        
     Information("Waiting a second to make sure RabbitMQ is running and has not failed to run");
     if(rabbitMqProcess.WaitForExit(1000))
     {
         throw new Exception($"Failed to start RabbitMQ, Exit code: {rabbitMqProcess.GetExitCode()}");
-    }
+    }ffffffffcvfcfcffffcfdf
 });
 
 Teardown(context =>

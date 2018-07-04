@@ -9,7 +9,7 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Tests
 {
 	[TestFixture]
 	public class Deserializing_an_interface :
-		AwsKeyManagementServiceSerializationTest
+		SerializationTest
 	{
 		[Test]
 		public void Should_create_a_proxy_for_the_interface()

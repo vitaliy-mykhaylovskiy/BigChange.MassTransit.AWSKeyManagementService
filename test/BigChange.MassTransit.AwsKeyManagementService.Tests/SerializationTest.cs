@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using Amazon.KeyManagementService;
 using Amazon.Runtime.SharedInterfaces;
+using GreenPipes;
 using MassTransit;
 using MassTransit.Pipeline.Observables;
 using MassTransit.Serialization;
@@ -19,7 +20,7 @@ using Shouldly;
 
 namespace BigChange.MassTransit.AwsKeyManagementService.Tests
 {
-	public abstract class AwsKeyManagementServiceSerializationTest :
+	public abstract class SerializationTest :
 		InMemoryTestFixture
 	{
 		protected IMessageDeserializer Deserializer;
@@ -34,31 +35,11 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Tests
 		[OneTimeSetUp]
 		public void SetupSerializationTest()
 		{
-			_keyCiphertext = Guid.NewGuid().ToByteArray();
-			var key = new byte[]
-			{
-				31, 182, 254, 29, 98, 114, 85, 168, 176, 48, 113,
-				206, 198, 176, 181, 125, 106, 134, 98, 217, 113,
-				158, 88, 75, 118, 223, 117, 160, 224, 1, 47, 162
-			};
+			var keyProvider = new TestSecureKeyProvider();
+			var cryptoStreamProvider = new AesCryptoStreamProvider(keyProvider);
 
-			var mock = new Mock<IEncryptionContextBuilder>();
-			var dictionary = new Dictionary<string, string>();
-			mock.Setup(x => x.BuildEncryptionContext(It.IsAny<ReceiveContext>()))
-				.Returns(dictionary);
-			mock.Setup(x => x.BuildEncryptionContext(It.IsAny<SendContext>()))
-				.Returns(dictionary);
-
-			var amazonKeyManagementService = new Mock<IAmazonKeyManagementService>();
-			amazonKeyManagementService.Setup(x =>
-					x.GenerateDataKey("abc", dictionary, "AES_256"))
-				.Returns(new GenerateDataKeyResult { KeyCiphertext = _keyCiphertext, KeyPlaintext = key });
-
-			amazonKeyManagementService.Setup(x => x.Decrypt(It.Is<byte[]>(d => d.SequenceEqual(_keyCiphertext)), dictionary))
-				.Returns(key);
-
-			Serializer = new AwsKeyManagementServiceMessageSerializer(amazonKeyManagementService.Object, mock.Object, "abc");
-			Deserializer = new AwsKeyManagementServiceMessageDeserializer(BsonMessageSerializer.Deserializer, amazonKeyManagementService.Object, mock.Object);
+			Serializer = new EncryptedMessageSerializer(cryptoStreamProvider);
+			Deserializer = new EncryptedMessageDeserializer(BsonMessageSerializer.Deserializer, cryptoStreamProvider);
 		}
 
 		protected T SerializeAndReturn<T>(T obj)
@@ -96,7 +77,6 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Tests
 			where T : class
 		{
 			var message = new InMemoryTransportMessage(Guid.NewGuid(), serializedMessageData, Serializer.ContentType.MediaType, TypeMetadataCache<T>.ShortName);
-			message.Headers.Add(AwsKeyManagementServiceMessageSerializer.DataKeyCiphertextHeader, Convert.ToBase64String(_keyCiphertext));
 
 			var receiveContext = new InMemoryReceiveContext(new Uri("loopback://localhost/input_queue"), message, new ReceiveObservable(), null);
 
@@ -123,6 +103,30 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Tests
 			T result = SerializeAndReturn(message);
 
 			message.Equals(result).ShouldBe(true);
+		}
+	}
+
+	public class TestSecureKeyProvider : ISecureKeyProvider
+	{
+		private static readonly byte[] Key = {
+			31, 182, 254, 29, 98, 114, 85, 168, 176, 48, 113,
+			206, 198, 176, 181, 125, 106, 134, 98, 217, 113,
+			158, 88, 75, 118, 223, 117, 160, 224, 1, 47, 162
+		};
+
+		public void Probe(ProbeContext context)
+		{
+
+		}
+
+		public byte[] GetKey(ReceiveContext receiveContext)
+		{
+			return Key;
+		}
+
+		public byte[] GetKey(SendContext sendContext)
+		{
+			return Key;
 		}
 	}
 }

@@ -61,7 +61,7 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Tests.RabbitMq
 
 			ConsumeContext<PingMessage> received = await _handler;
 
-			Assert.AreEqual(AwsKeyManagementServiceMessageSerializer.AwsKmsEncryptedContentType, received.ReceiveContext.ContentType);
+			Assert.AreEqual(EncryptedMessageSerializer.EncryptedContentType, received.ReceiveContext.ContentType);
 		}
 	}
 }

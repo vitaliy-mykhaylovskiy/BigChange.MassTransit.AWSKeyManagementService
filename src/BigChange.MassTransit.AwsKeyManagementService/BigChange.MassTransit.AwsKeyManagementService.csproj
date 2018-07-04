@@ -14,4 +14,9 @@
     <RepositoryUrl>https://github.com/BigChangeApps/BigChange.MassTransit.AWSKeyManagementService.git</RepositoryUrl>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="AWSSDK.KeyManagementService" Version="3.3.5.8" />
+    <PackageReference Include="MassTransit" Version="5.1.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+  </ItemGroup>
 </Project>

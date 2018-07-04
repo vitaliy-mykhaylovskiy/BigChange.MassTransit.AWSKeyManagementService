@@ -29,11 +29,12 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Tests
 		readonly Uri _responseAddress = new Uri("loopback://localhost/response");
 		readonly Uri _faultAddress = new Uri("loopback://localhost/fault");
 		protected readonly Guid _requestId = Guid.NewGuid();
+		private byte[] _keyCiphertext;
 
 		[OneTimeSetUp]
 		public void SetupSerializationTest()
 		{
-			var keyCiphertext = Guid.NewGuid().ToByteArray();
+			_keyCiphertext = Guid.NewGuid().ToByteArray();
 			var key = new byte[]
 			{
 				31, 182, 254, 29, 98, 114, 85, 168, 176, 48, 113,
@@ -44,9 +45,9 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Tests
 			var amazonKeyManagementService = new Mock<IAmazonKeyManagementService>();
 			amazonKeyManagementService.Setup(x =>
 					x.GenerateDataKey("abc", It.Is<Dictionary<string, string>>(d => d.Count == 1 && d.ContainsKey("message_id")), "AES_256"))
-				.Returns(new GenerateDataKeyResult { KeyCiphertext = keyCiphertext, KeyPlaintext = key });
+				.Returns(new GenerateDataKeyResult { KeyCiphertext = _keyCiphertext, KeyPlaintext = key });
 
-			amazonKeyManagementService.Setup(x => x.Decrypt(It.Is<byte[]>(d => d.SequenceEqual(keyCiphertext)),
+			amazonKeyManagementService.Setup(x => x.Decrypt(It.Is<byte[]>(d => d.SequenceEqual(_keyCiphertext)),
 					It.Is<Dictionary<string, string>>(d => d.Count == 1 && d.ContainsKey("message_id"))))
 				.Returns(key);
 
@@ -76,7 +77,6 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Tests
 				sendContext.ResponseAddress = _responseAddress;
 				sendContext.RequestId = _requestId;
 
-
 				Serializer.Serialize(output, sendContext);
 
 				byte[] serializedMessageData = output.ToArray();
@@ -90,7 +90,7 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Tests
 			where T : class
 		{
 			var message = new InMemoryTransportMessage(Guid.NewGuid(), serializedMessageData, Serializer.ContentType.MediaType, TypeMetadataCache<T>.ShortName);
-			message.Headers.Add("DataKeyCiphertextHeader", Convert.ToBase64String(Guid.NewGuid().ToByteArray()));
+			message.Headers.Add(AwsKeyManagementServiceMessageSerializer.DataKeyCiphertextHeader, Convert.ToBase64String(_keyCiphertext));
 
 			var receiveContext = new InMemoryReceiveContext(new Uri("loopback://localhost/input_queue"), message, new ReceiveObservable(), null);
 

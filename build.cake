@@ -8,11 +8,22 @@ IProcess rabbitMqProcess = null;
 
 Setup(context =>
 {
+    Information("Downloading RabbitMQ v3.7.6");
     var resource = DownloadFile("https://github.com/rabbitmq/rabbitmq-server/releases/download/v3.7.6/rabbitmq-server-windows-3.7.6.zip");
 
+    Information("Unzip RabbitMQ v3.7.6");
     Unzip(resource, "./rabbitmq");
 
-    StartProcess("./rabbitmq/rabbitmq_server-3.7.6/sbin/rabbitmq-server.bat");
+    Information("Starting RabbitMQ v3.7.6");
+    try{
+    var exitCodeWithArgument = StartProcess("./rabbitmq/rabbitmq_server-3.7.6/sbin/rabbitmq-server.bat",
+        new ProcessSettings{
+            //WorkingDirectory = ""
+        });
+    Information("Exit code: {0}", exitCodeWithArgument);
+    }catch(Exception ex){
+        Error(ex.ToString());
+    }
 });
 
 Teardown(context =>

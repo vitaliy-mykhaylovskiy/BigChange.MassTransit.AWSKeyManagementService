@@ -31,18 +31,28 @@ namespace BigChange.MassTransit.AwsKeyManagementService
 
 		public static void UseAwsKeyManagementServiceSerializer(this IBusFactoryConfigurator configurator, IAmazonKeyManagementService amazonKeyManagementService, string keyId)
 		{
-			configurator.SetMessageSerializer(() => new AwsKeyManagementServiceMessageSerializer(amazonKeyManagementService, keyId));
-
-			configurator.AddMessageDeserializer(AwsKeyManagementServiceMessageSerializer.AwsKmsEncryptedContentType,
-				() => new AwsKeyManagementServiceMessageDeserializer(BsonMessageSerializer.Deserializer, amazonKeyManagementService));
+			configurator.UseAwsKeyManagementServiceSerializer(amazonKeyManagementService, new MessageEncryptionContextBuilder(), keyId);
 		}
 
 		public static void UseAwsKeyManagementServiceSerializer(this IReceiveEndpointConfigurator configurator, IAmazonKeyManagementService amazonKeyManagementService, string keyId)
 		{
-			configurator.SetMessageSerializer(() => new AwsKeyManagementServiceMessageSerializer(amazonKeyManagementService, keyId));
+			configurator.UseAwsKeyManagementServiceSerializer(amazonKeyManagementService, new MessageEncryptionContextBuilder(), keyId);
+		}
+
+		public static void UseAwsKeyManagementServiceSerializer(this IBusFactoryConfigurator configurator, IAmazonKeyManagementService amazonKeyManagementService, IEncryptionContextBuilder encryptionContextBuilder, string keyId)
+		{
+			configurator.SetMessageSerializer(() => new AwsKeyManagementServiceMessageSerializer(amazonKeyManagementService, encryptionContextBuilder, keyId));
 
 			configurator.AddMessageDeserializer(AwsKeyManagementServiceMessageSerializer.AwsKmsEncryptedContentType,
-				() => new AwsKeyManagementServiceMessageDeserializer(BsonMessageSerializer.Deserializer, amazonKeyManagementService));
+				() => new AwsKeyManagementServiceMessageDeserializer(BsonMessageSerializer.Deserializer, amazonKeyManagementService, encryptionContextBuilder));
+		}
+
+		public static void UseAwsKeyManagementServiceSerializer(this IReceiveEndpointConfigurator configurator, IAmazonKeyManagementService amazonKeyManagementService, IEncryptionContextBuilder encryptionContextBuilder, string keyId)
+		{
+			configurator.SetMessageSerializer(() => new AwsKeyManagementServiceMessageSerializer(amazonKeyManagementService, encryptionContextBuilder, keyId));
+
+			configurator.AddMessageDeserializer(AwsKeyManagementServiceMessageSerializer.AwsKmsEncryptedContentType,
+				() => new AwsKeyManagementServiceMessageDeserializer(BsonMessageSerializer.Deserializer, amazonKeyManagementService, encryptionContextBuilder));
 		}
 	}
 }

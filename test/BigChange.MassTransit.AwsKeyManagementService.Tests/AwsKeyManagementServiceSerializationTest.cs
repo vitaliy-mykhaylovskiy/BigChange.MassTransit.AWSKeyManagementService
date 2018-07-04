@@ -42,17 +42,23 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Tests
 				158, 88, 75, 118, 223, 117, 160, 224, 1, 47, 162
 			};
 
+			var mock = new Mock<IEncryptionContextBuilder>();
+			var dictionary = new Dictionary<string, string>();
+			mock.Setup(x => x.BuildEncryptionContext(It.IsAny<ReceiveContext>()))
+				.Returns(dictionary);
+			mock.Setup(x => x.BuildEncryptionContext(It.IsAny<SendContext>()))
+				.Returns(dictionary);
+
 			var amazonKeyManagementService = new Mock<IAmazonKeyManagementService>();
 			amazonKeyManagementService.Setup(x =>
-					x.GenerateDataKey("abc", It.Is<Dictionary<string, string>>(d => d.Count == 1 && d.ContainsKey("message_id")), "AES_256"))
+					x.GenerateDataKey("abc", dictionary, "AES_256"))
 				.Returns(new GenerateDataKeyResult { KeyCiphertext = _keyCiphertext, KeyPlaintext = key });
 
-			amazonKeyManagementService.Setup(x => x.Decrypt(It.Is<byte[]>(d => d.SequenceEqual(_keyCiphertext)),
-					It.Is<Dictionary<string, string>>(d => d.Count == 1 && d.ContainsKey("message_id"))))
+			amazonKeyManagementService.Setup(x => x.Decrypt(It.Is<byte[]>(d => d.SequenceEqual(_keyCiphertext)), dictionary))
 				.Returns(key);
 
-			Serializer = new AwsKeyManagementServiceMessageSerializer(amazonKeyManagementService.Object, "abc");
-			Deserializer = new AwsKeyManagementServiceMessageDeserializer(BsonMessageSerializer.Deserializer, amazonKeyManagementService.Object);
+			Serializer = new AwsKeyManagementServiceMessageSerializer(amazonKeyManagementService.Object, mock.Object, "abc");
+			Deserializer = new AwsKeyManagementServiceMessageDeserializer(BsonMessageSerializer.Deserializer, amazonKeyManagementService.Object, mock.Object);
 		}
 
 		protected T SerializeAndReturn<T>(T obj)

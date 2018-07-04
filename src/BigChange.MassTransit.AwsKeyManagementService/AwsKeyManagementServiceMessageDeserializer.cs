@@ -18,15 +18,18 @@ namespace BigChange.MassTransit.AwsKeyManagementService
 	{
 		readonly JsonSerializer _deserializer;
 		private readonly IAmazonKeyManagementService _amazonKeyManagementService;
+		private readonly IEncryptionContextBuilder _encryptionContextBuilder;
 		private readonly PaddingMode _paddingMode;
 		readonly IObjectTypeDeserializer _objectTypeDeserializer;
 
 		public AwsKeyManagementServiceMessageDeserializer(JsonSerializer deserializer,
 			IAmazonKeyManagementService amazonKeyManagementService,
+			IEncryptionContextBuilder encryptionContextBuilder,
 			PaddingMode paddingMode = PaddingMode.PKCS7)
 		{
 			_deserializer = deserializer;
 			_amazonKeyManagementService = amazonKeyManagementService;
+			_encryptionContextBuilder = encryptionContextBuilder;
 			_paddingMode = paddingMode;
 
 			_objectTypeDeserializer = new ObjectTypeDeserializer(_deserializer);
@@ -51,7 +54,8 @@ namespace BigChange.MassTransit.AwsKeyManagementService
 					var dataKeyCiphertext = GetDataKeyCiphertext(receiveContext);
 
 
-					var key = _amazonKeyManagementService.Decrypt(dataKeyCiphertext, new Dictionary<string, string>() { { "message_id", receiveContext.TransportHeaders.Get<string>("message_id")} });
+					var encryptionContext = _encryptionContextBuilder.BuildEncryptionContext(receiveContext);
+					var key = _amazonKeyManagementService.Decrypt(dataKeyCiphertext, encryptionContext);
 
 					var iv = new byte[16];
 					body.Read(iv, 0, iv.Length);

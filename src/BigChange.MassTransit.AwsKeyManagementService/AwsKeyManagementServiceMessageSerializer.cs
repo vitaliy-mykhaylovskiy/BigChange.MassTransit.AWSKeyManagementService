@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Net.Mime;
 using System.Security.Cryptography;
@@ -16,6 +15,7 @@ namespace BigChange.MassTransit.AwsKeyManagementService
 		IMessageSerializer
 	{
 		private readonly IAmazonKeyManagementService _amazonKeyManagementService;
+		private readonly IEncryptionContextBuilder _encryptionContextBuilder;
 		private readonly string _keyId;
 		public const string ContentTypeHeaderValue = "application/vnd.masstransit+aws.kms.aes";
 		public const string DataKeyCiphertextHeader = "KmsDataKeyCiphertext";
@@ -23,9 +23,10 @@ namespace BigChange.MassTransit.AwsKeyManagementService
 		readonly JsonSerializer _serializer;
 		private readonly PaddingMode _paddingMode;
 
-		public AwsKeyManagementServiceMessageSerializer(IAmazonKeyManagementService amazonKeyManagementService, string keyId, PaddingMode paddingMode = PaddingMode.PKCS7)
+		public AwsKeyManagementServiceMessageSerializer(IAmazonKeyManagementService amazonKeyManagementService, IEncryptionContextBuilder encryptionContextBuilder, string keyId, PaddingMode paddingMode = PaddingMode.PKCS7)
 		{
 			_amazonKeyManagementService = amazonKeyManagementService;
+			_encryptionContextBuilder = encryptionContextBuilder;
 			_keyId = keyId;
 			_paddingMode = paddingMode;
 			_serializer = BsonMessageSerializer.Serializer;
@@ -37,8 +38,10 @@ namespace BigChange.MassTransit.AwsKeyManagementService
 		{
 			context.ContentType = AwsKmsEncryptedContentType;
 
+			var encryptionContext = _encryptionContextBuilder.BuildEncryptionContext(context);
+
 			var dataKeyResponse =
-				_amazonKeyManagementService.GenerateDataKey(_keyId, new Dictionary<string, string>(){{"message_id", context.MessageId?.ToString()}}, "AES_256");
+				_amazonKeyManagementService.GenerateDataKey(_keyId, encryptionContext, "AES_256");
 
 			context.Headers.Set(AwsKeyManagementServiceMessageSerializer.DataKeyCiphertextHeader, Convert.ToBase64String(dataKeyResponse.KeyCiphertext));
 			var key = dataKeyResponse.KeyPlaintext;
@@ -60,7 +63,7 @@ namespace BigChange.MassTransit.AwsKeyManagementService
 				jsonWriter.Flush();
 			}
 		}
-
+		
 		private byte[] GenerateIv()
 		{
 			var aes = CreateAes();

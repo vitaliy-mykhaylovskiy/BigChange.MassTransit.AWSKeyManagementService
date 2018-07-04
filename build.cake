@@ -15,20 +15,18 @@ Setup(context =>
     Unzip(resource, "./rabbitmq");
 
     Information("Starting RabbitMQ v3.7.6");
-    try{
-    var exitCodeWithArgument = StartProcess("./rabbitmq/rabbitmq_server-3.7.6/sbin/rabbitmq-server.bat",
-        new ProcessSettings{
-            //WorkingDirectory = ""
-        });
-    Information("Exit code: {0}", exitCodeWithArgument);
-    }catch(Exception ex){
-        Error(ex.ToString());
+    rabbitMqProcess = StartAndReturnProcess("./rabbitmq/rabbitmq_server-3.7.6/sbin/rabbitmq-server.bat");
+       
+    Information("Waiting a second to make sure RabbitMQ is running and has not failed to run");
+    if(rabbitMqProcess.WaitForExit(1000))
+    {
+        throw new Exception($"Failed to start RabbitMQ, Exit code: {rabbitMqProcess.GetExitCode()}");
     }
 });
 
 Teardown(context =>
 {
-    rabbitMqProcess.Kill();
+    rabbitMqProcess?.Kill();
 });
 
 Task("Clean")

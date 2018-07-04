@@ -4,6 +4,9 @@ skip_tags: true
 
 configuration:
   - Release
+  
+install:
+  - ps: .\Run-RabbitMQ.ps1
 
 build_script:
   - ps: .\build.ps1

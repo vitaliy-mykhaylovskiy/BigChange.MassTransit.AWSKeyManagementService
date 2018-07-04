@@ -21,7 +21,7 @@ Setup(context =>
     if(rabbitMqProcess.WaitForExit(1000))
     {
         throw new Exception($"Failed to start RabbitMQ, Exit code: {rabbitMqProcess.GetExitCode()}");
-    }ffffffffcvfcfcffffcfdf
+    }
 });
 
 Teardown(context =>

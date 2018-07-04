@@ -2,16 +2,16 @@
 
 namespace BigChange.MassTransit.AwsKeyManagementService.Tests
 {
-	public interface ComplaintAdded
-	{
-		User AddedBy { get; }
+    public interface ComplaintAdded
+    {
+        User AddedBy { get; }
 
-		DateTime AddedAt { get; }
+        DateTime AddedAt { get; }
 
-		string Subject { get; }
+        string Subject { get; }
 
-		string Body { get; }
+        string Body { get; }
 
-		BusinessArea Area { get; }
-	}
+        BusinessArea Area { get; }
+    }
 }

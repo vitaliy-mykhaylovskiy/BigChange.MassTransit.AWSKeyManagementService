@@ -12,6 +12,7 @@
     <Description>AWS KMS for encrypting MassTransit messages</Description>
     <PackageProjectUrl>https://github.com/BigChangeApps/BigChange.MassTransit.AWSKeyManagementService</PackageProjectUrl>
     <RepositoryUrl>https://github.com/BigChangeApps/BigChange.MassTransit.AWSKeyManagementService.git</RepositoryUrl>
+    <PackageTags>MassTransit;AWS;Amazon;KMS;KeyManagementService;BigChange;AES</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

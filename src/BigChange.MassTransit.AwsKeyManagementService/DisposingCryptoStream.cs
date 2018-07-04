@@ -3,37 +3,37 @@ using System.Security.Cryptography;
 
 namespace BigChange.MassTransit.AwsKeyManagementService
 {
-	internal class DisposingCryptoStream :
-		CryptoStream
-	{
-		Stream _stream;
-		ICryptoTransform _transform;
+    internal class DisposingCryptoStream :
+        CryptoStream
+    {
+        private Stream _stream;
+        private ICryptoTransform _transform;
 
-		public DisposingCryptoStream(Stream stream, ICryptoTransform transform, CryptoStreamMode mode)
-			: base(stream, transform, mode)
-		{
-			_stream = stream;
-			_transform = transform;
-		}
+        public DisposingCryptoStream(Stream stream, ICryptoTransform transform, CryptoStreamMode mode)
+            : base(stream, transform, mode)
+        {
+            _stream = stream;
+            _transform = transform;
+        }
 
-		protected override void Dispose(bool disposing)
-		{
-			if (!disposing)
-				return;
+        protected override void Dispose(bool disposing)
+        {
+            if (!disposing)
+                return;
 
-			base.Dispose(true);
+            base.Dispose(true);
 
-			if (_stream != null)
-			{
-				_stream.Dispose();
-				_stream = null;
-			}
+            if (_stream != null)
+            {
+                _stream.Dispose();
+                _stream = null;
+            }
 
-			if (_transform != null)
-			{
-				_transform.Dispose();
-				_transform = null;
-			}
-		}
-	}
+            if (_transform != null)
+            {
+                _transform.Dispose();
+                _transform = null;
+            }
+        }
+    }
 }

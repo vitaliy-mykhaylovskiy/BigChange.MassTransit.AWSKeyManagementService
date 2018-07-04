@@ -8,38 +8,37 @@ using Newtonsoft.Json.Bson;
 
 namespace BigChange.MassTransit.AwsKeyManagementService
 {
-	public class EncryptedMessageSerializer :
-		IMessageSerializer
-	{
-		private readonly ICryptoStreamProvider _streamProvider;
-		public const string ContentTypeHeaderValue = "application/vnd.bigchange.masstransit+aes";
-		public static readonly ContentType EncryptedContentType = new ContentType(ContentTypeHeaderValue);
-		readonly JsonSerializer _serializer;
-		
-		public EncryptedMessageSerializer(ICryptoStreamProvider streamProvider)
-		{
-			_streamProvider = streamProvider;
-			_serializer = BsonMessageSerializer.Serializer;
-		}
+    public class EncryptedMessageSerializer :
+        IMessageSerializer
+    {
+        public const string ContentTypeHeaderValue = "application/vnd.bigchange.masstransit+aes";
+        public static readonly ContentType EncryptedContentType = new ContentType(ContentTypeHeaderValue);
+        private readonly JsonSerializer _serializer;
+        private readonly ICryptoStreamProvider _streamProvider;
 
-		ContentType IMessageSerializer.ContentType => EncryptedContentType;
+        public EncryptedMessageSerializer(ICryptoStreamProvider streamProvider)
+        {
+            _streamProvider = streamProvider;
+            _serializer = BsonMessageSerializer.Serializer;
+        }
 
-		void IMessageSerializer.Serialize<T>(Stream stream, SendContext<T> context)
-		{
-			context.ContentType = EncryptedContentType;
+        ContentType IMessageSerializer.ContentType => EncryptedContentType;
 
-			var envelope = new JsonMessageEnvelope(context, context.Message, TypeMetadataCache<T>.MessageTypeNames);
+        void IMessageSerializer.Serialize<T>(Stream stream, SendContext<T> context)
+        {
+            context.ContentType = EncryptedContentType;
 
-			using (var cryptoStream = _streamProvider.GetEncryptStream(stream, context))
-			{
-				using (var jsonWriter = new BsonDataWriter(cryptoStream))
-				{
-					_serializer.Serialize(jsonWriter, envelope, typeof(MessageEnvelope));
+            var envelope = new JsonMessageEnvelope(context, context.Message, TypeMetadataCache<T>.MessageTypeNames);
 
-					jsonWriter.Flush();
-				}
+            using (var cryptoStream = _streamProvider.GetEncryptStream(stream, context))
+            {
+                using (var jsonWriter = new BsonDataWriter(cryptoStream))
+                {
+                    _serializer.Serialize(jsonWriter, envelope, typeof(MessageEnvelope));
 
-			}
-		}
-	}
+                    jsonWriter.Flush();
+                }
+            }
+        }
+    }
 }

@@ -12,7 +12,7 @@ Setup(context =>
 
     Unzip(resource, "./rabbitmq");
 
-    rabbitMqProcess = StartAndReturnProcess("./rabbitmq/rabbitmq_server-3.7.6/sbin/rabbitmq-server.bat");
+    StartProcess("./rabbitmq/rabbitmq_server-3.7.6/sbin/rabbitmq-server.bat");
 });
 
 Teardown(context =>

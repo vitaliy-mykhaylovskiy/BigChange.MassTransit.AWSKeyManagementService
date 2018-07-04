@@ -23,7 +23,7 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Tests.RabbitMq
 
 			NameFormatter = new RabbitMqMessageNameFormatter();
 
-			HostAddress = new Uri("rabbitmq://localhost/test/");
+			HostAddress = new Uri("rabbitmq://localhost/");
 		}
 
 		public Uri HostAddress

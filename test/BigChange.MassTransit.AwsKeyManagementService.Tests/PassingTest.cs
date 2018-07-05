@@ -2,13 +2,13 @@
 
 namespace BigChange.MassTransit.AwsKeyManagementService.Tests
 {
-	[TestFixture]
-    class PassingTest
+    [TestFixture]
+    internal class PassingTest
     {
-		[Test]
-	    public void Passing()
-	    {
-			Assert.True(true);
-	    }
+        [Test]
+        public void Passing()
+        {
+            Assert.True(true);
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Amazon;
+﻿using System.Collections.Generic;
+using Amazon;
 using Amazon.KeyManagementService;
 using MassTransit;
 using MassTransit.Serialization;
@@ -42,6 +43,22 @@ namespace BigChange.MassTransit.AwsKeyManagementService
         {
             configurator.UseAwsKeyManagementServiceSerializer(amazonKeyManagementService,
                 new MessageEncryptionContextBuilder(), keyId);
+        }
+
+        public static void UseAwsKeyManagementServiceSerializer(this IBusFactoryConfigurator configurator,
+            IEncryptionContextBuilder encryptionContextBuilder,
+            string kmsKeyId)
+        {
+            configurator.UseAwsKeyManagementServiceSerializer(new AmazonKeyManagementServiceClient(),
+                encryptionContextBuilder, kmsKeyId);
+        }
+
+        public static void UseAwsKeyManagementServiceSerializer(this IReceiveEndpointConfigurator configurator,
+            IEncryptionContextBuilder encryptionContextBuilder,
+            string kmsKeyId)
+        {
+            configurator.UseAwsKeyManagementServiceSerializer(new AmazonKeyManagementServiceClient(),
+                encryptionContextBuilder, kmsKeyId);
         }
 
         public static void UseAwsKeyManagementServiceSerializer(this IBusFactoryConfigurator configurator,

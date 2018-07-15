@@ -2,6 +2,7 @@
 using Amazon.KeyManagementService;
 using GreenPipes;
 using MassTransit;
+using MassTransit.Serialization;
 
 namespace BigChange.MassTransit.AwsKeyManagementService
 {

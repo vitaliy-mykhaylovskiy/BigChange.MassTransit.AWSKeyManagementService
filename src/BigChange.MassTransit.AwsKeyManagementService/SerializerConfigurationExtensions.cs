@@ -50,12 +50,12 @@ namespace BigChange.MassTransit.AwsKeyManagementService
         {
             var kmsSecureKeyProvider =
                 new KmsSecureKeyProvider(amazonKeyManagementService, encryptionContextBuilder, kmsKeyId);
-            var aesCryptoStreamProvider = new AesCryptoStreamProvider(kmsSecureKeyProvider);
+            var aesCryptoStreamProvider = new AesCryptoStreamProviderV2(kmsSecureKeyProvider);
 
-            configurator.SetMessageSerializer(() => new EncryptedMessageSerializer(aesCryptoStreamProvider));
+            configurator.SetMessageSerializer(() => new EncryptedMessageSerializerV2(aesCryptoStreamProvider));
 
             configurator.AddMessageDeserializer(EncryptedMessageSerializer.EncryptedContentType,
-                () => new EncryptedMessageDeserializer(BsonMessageSerializer.Deserializer, aesCryptoStreamProvider));
+                () => new EncryptedMessageDeserializerV2(BsonMessageSerializer.Deserializer, aesCryptoStreamProvider));
         }
 
         public static void UseAwsKeyManagementServiceSerializer(this IReceiveEndpointConfigurator configurator,
@@ -64,11 +64,11 @@ namespace BigChange.MassTransit.AwsKeyManagementService
         {
             var kmsSecureKeyProvider =
                 new KmsSecureKeyProvider(amazonKeyManagementService, encryptionContextBuilder, kmsKeyId);
-            var aesCryptoStreamProvider = new AesCryptoStreamProvider(kmsSecureKeyProvider);
-            configurator.SetMessageSerializer(() => new EncryptedMessageSerializer(aesCryptoStreamProvider));
+            var aesCryptoStreamProvider = new AesCryptoStreamProviderV2(kmsSecureKeyProvider);
+            configurator.SetMessageSerializer(() => new EncryptedMessageSerializerV2(aesCryptoStreamProvider));
 
             configurator.AddMessageDeserializer(EncryptedMessageSerializer.EncryptedContentType,
-                () => new EncryptedMessageDeserializer(BsonMessageSerializer.Deserializer, aesCryptoStreamProvider));
+                () => new EncryptedMessageDeserializerV2(BsonMessageSerializer.Deserializer, aesCryptoStreamProvider));
         }
     }
 }

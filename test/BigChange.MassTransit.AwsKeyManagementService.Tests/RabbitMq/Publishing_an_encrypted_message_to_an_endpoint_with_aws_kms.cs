@@ -6,6 +6,7 @@ using Amazon.KeyManagementService;
 using Amazon.Runtime.SharedInterfaces;
 using MassTransit;
 using MassTransit.RabbitMqTransport;
+using MassTransit.Serialization;
 using MassTransit.TestFramework.Messages;
 using Moq;
 using NUnit.Framework;
@@ -62,7 +63,7 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Tests.RabbitMq
 
             var received = await _handler;
 
-            Assert.AreEqual(EncryptedMessageSerializer.EncryptedContentType, received.ReceiveContext.ContentType);
+            Assert.AreEqual(EncryptedMessageSerializerV2.EncryptedContentType, received.ReceiveContext.ContentType);
         }
     }
 }

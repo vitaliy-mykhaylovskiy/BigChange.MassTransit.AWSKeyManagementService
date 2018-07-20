@@ -35,11 +35,11 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Tests.RabbitMq
             _amazonKeyManagementService = new Mock<IAmazonKeyManagementService>();
             _amazonKeyManagementService.Setup(x =>
                     x.GenerateDataKey(_keyId,
-                        It.Is<Dictionary<string, string>>(d => d.Count == 1 && d.ContainsKey("message_id")), "AES_256"))
+                        It.Is<Dictionary<string, string>>(d => d.Count == 0), "AES_256"))
                 .Returns(new GenerateDataKeyResult {KeyCiphertext = keyCiphertext, KeyPlaintext = key});
 
             _amazonKeyManagementService.Setup(x => x.Decrypt(It.Is<byte[]>(d => d.SequenceEqual(keyCiphertext)),
-                    It.Is<Dictionary<string, string>>(d => d.Count == 1 && d.ContainsKey("message_id"))))
+                    It.Is<Dictionary<string, string>>(d => d.Count == 0)))
                 .Returns(key);
         }
 

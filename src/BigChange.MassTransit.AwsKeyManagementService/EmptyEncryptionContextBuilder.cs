@@ -6,10 +6,7 @@ namespace BigChange.MassTransit.AwsKeyManagementService
     public class EmptyEncryptionContextBuilder : IEncryptionContextBuilder
     {
         private static readonly Dictionary<string, string> EmptyEncryptionContext
-            = new Dictionary<string, string>()
-            {
-                { "SomeKey", "SomeData" }
-            };
+            = new Dictionary<string, string>();
 
         public Dictionary<string, string> BuildEncryptionContext(SendContext context)
             => EmptyEncryptionContext;

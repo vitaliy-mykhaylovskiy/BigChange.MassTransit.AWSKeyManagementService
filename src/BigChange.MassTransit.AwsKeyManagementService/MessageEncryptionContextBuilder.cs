@@ -17,7 +17,7 @@ namespace BigChange.MassTransit.AwsKeyManagementService
         {
             return new Dictionary<string, string>
             {
-                {"message_id", receiveContext.TransportHeaders.Get<string>("message_id")}
+                {"message_id", receiveContext.TransportHeaders.Get<string>("MessageId")}
             };
         }
     }

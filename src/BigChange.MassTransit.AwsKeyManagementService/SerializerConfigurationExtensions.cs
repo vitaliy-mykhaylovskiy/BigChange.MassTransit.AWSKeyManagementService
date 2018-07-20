@@ -35,14 +35,14 @@ namespace BigChange.MassTransit.AwsKeyManagementService
             IAmazonKeyManagementService amazonKeyManagementService, string keyId)
         {
             configurator.UseAwsKeyManagementServiceSerializer(amazonKeyManagementService,
-                new MessageEncryptionContextBuilder(), keyId);
+                new EmptyEncryptionContextBuilder(), keyId);
         }
 
         public static void UseAwsKeyManagementServiceSerializer(this IReceiveEndpointConfigurator configurator,
             IAmazonKeyManagementService amazonKeyManagementService, string keyId)
         {
             configurator.UseAwsKeyManagementServiceSerializer(amazonKeyManagementService,
-                new MessageEncryptionContextBuilder(), keyId);
+                new EmptyEncryptionContextBuilder(), keyId);
         }
 
         public static void UseAwsKeyManagementServiceSerializer(this IBusFactoryConfigurator configurator,

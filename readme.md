@@ -43,22 +43,25 @@ configurator.UseAwsKeyManagementServiceSerializer(RegionEndpoint.EUWest1, "alias
 
 ### Configure with a Key Id and a custom encryption context builder
 
-You can customize how the library builds up the encryption context that will be used for encrypting and decrypting message data, the default implementation uses the message id of the message. Note that all data used in the encryption context will logged if CloudTrail logging is turned on.
+You can customize how the library builds up the encryption context that will be used for encrypting and decrypting message data, the default implementation uses an empty encryption context. Note that all data used in the encryption context will logged if CloudTrail logging is turned on.
 
 ```csharp
-public class EmptyEncryptionContextBuilder : IEncryptionContextBuilder
+public class CustomEncryptionContextBuilder : IEncryptionContextBuilder
 {
-    private static readonly Dictionary<string, string> EmptyEncryptionContext
-        = new Dictionary<string, string>();
+    private static readonly Dictionary<string, string> MyEncryptionContext
+        = new Dictionary<string, string>()
+        {
+            { "SomeKey", "SomeData" }
+        };
 
     public Dictionary<string, string> BuildEncryptionContext(SendContext context)
-        => EmptyEncryptionContext;
+        => MyEncryptionContext;
 
     public Dictionary<string, string> BuildEncryptionContext(ReceiveContext receiveContext)
-        => EmptyEncryptionContext;
+        => MyEncryptionContext;
 }
 
-configurator.UseAwsKeyManagementServiceSerializer(new EmptyEncryptionContextBuilder(), "alias/masstransit")
+configurator.UseAwsKeyManagementServiceSerializer(new CustomEncryptionContextBuilder(), "alias/masstransit")
 ```
 
 ### Configure with a Key Id and a custom `IAmazonKeyManagementService` instance

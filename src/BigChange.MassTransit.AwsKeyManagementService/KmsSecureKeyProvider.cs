@@ -9,14 +9,14 @@ namespace BigChange.MassTransit.AwsKeyManagementService
     public class KmsSecureKeyProvider : ISecureKeyProvider
     {
         public const string DataKeyCiphertextHeader = "KmsDataKeyCiphertext";
-        private readonly IAmazonKeyManagementService _amazonKeyManagementService;
         private readonly IEncryptionContextBuilder _encryptionContextBuilder;
         private readonly string _kmsKeyId;
+        private readonly IKeyManagementService _keyManagementService;
 
-        public KmsSecureKeyProvider(IAmazonKeyManagementService amazonKeyManagementService,
+        public KmsSecureKeyProvider(IKeyManagementService keyManagementService,
             IEncryptionContextBuilder encryptionContextBuilder, string kmsKeyId)
         {
-            _amazonKeyManagementService = amazonKeyManagementService;
+            _keyManagementService = keyManagementService;
             _encryptionContextBuilder = encryptionContextBuilder;
             _kmsKeyId = kmsKeyId;
         }
@@ -26,7 +26,7 @@ namespace BigChange.MassTransit.AwsKeyManagementService
             var dataKeyCiphertext = GetDataKeyCiphertext(receiveContext);
 
             var encryptionContext = _encryptionContextBuilder.BuildEncryptionContext(receiveContext);
-            var key = _amazonKeyManagementService.Decrypt(dataKeyCiphertext, encryptionContext);
+            var key = _keyManagementService.Decrypt(dataKeyCiphertext, encryptionContext);
 
             return key;
         }
@@ -36,7 +36,7 @@ namespace BigChange.MassTransit.AwsKeyManagementService
             var encryptionContext = _encryptionContextBuilder.BuildEncryptionContext(sendContext);
 
             var dataKeyResponse =
-                _amazonKeyManagementService.GenerateDataKey(_kmsKeyId, encryptionContext, "AES_256");
+                _keyManagementService.GenerateDataKey(_kmsKeyId, encryptionContext, "AES_256");
 
             sendContext.Headers.Set(DataKeyCiphertextHeader, Convert.ToBase64String(dataKeyResponse.KeyCiphertext));
 

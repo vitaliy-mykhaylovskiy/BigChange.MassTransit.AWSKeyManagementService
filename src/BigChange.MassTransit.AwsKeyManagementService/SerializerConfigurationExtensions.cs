@@ -66,7 +66,7 @@ namespace BigChange.MassTransit.AwsKeyManagementService
             string kmsKeyId)
         {
             var kmsSecureKeyProvider =
-                new KmsSecureKeyProvider(amazonKeyManagementService, encryptionContextBuilder, kmsKeyId);
+                new KmsSecureKeyProvider(new AmazonKeyManagementService(amazonKeyManagementService), encryptionContextBuilder, kmsKeyId);
             var aesCryptoStreamProvider = new AesCryptoStreamProviderV2(kmsSecureKeyProvider);
 
             configurator.SetMessageSerializer(() => new EncryptedMessageSerializerV2(aesCryptoStreamProvider));
@@ -80,7 +80,7 @@ namespace BigChange.MassTransit.AwsKeyManagementService
             string kmsKeyId)
         {
             var kmsSecureKeyProvider =
-                new KmsSecureKeyProvider(amazonKeyManagementService, encryptionContextBuilder, kmsKeyId);
+                new KmsSecureKeyProvider(new AmazonKeyManagementService(amazonKeyManagementService), encryptionContextBuilder, kmsKeyId);
             var aesCryptoStreamProvider = new AesCryptoStreamProviderV2(kmsSecureKeyProvider);
             configurator.SetMessageSerializer(() => new EncryptedMessageSerializerV2(aesCryptoStreamProvider));
 

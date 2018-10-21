@@ -46,14 +46,14 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Cache.Tests
         [Test]
         public void ShouldReturnResultFromCacheOnGenerateDataKey()
         {
-            var expected = new GenerateDataKeyResult
+            var cachedItem = new GenerateDataKeyResultSerializable
             {
                 KeyCiphertext = _keyCiphertext,
                 KeyPlaintext = _key
             };
             var mockCacheKeyGenerator = new Mock<ICacheKeyGenerator>();
 
-            _mockCache.Setup(x => x.Get(It.IsAny<string>())).Returns(expected.ToByteArray());
+            _mockCache.Setup(x => x.Get(It.IsAny<string>())).Returns(cachedItem.GetBytes());
 
             var result = new KeyManagementServiceCache(_mockKeyManagementService.Object, _mockCache.Object, mockCacheKeyGenerator.Object)
             .GenerateDataKey(_keyId, _encryptionContext, Guid.NewGuid().ToString());
@@ -64,8 +64,8 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Cache.Tests
                     It.IsAny<Dictionary<string, string>>(),
                     It.IsAny<string>()), Times.Never);
 
-            result.KeyPlaintext.ShouldBe(expected.KeyPlaintext);
-            result.KeyCiphertext.ShouldBe(expected.KeyCiphertext);
+            result.KeyPlaintext.ShouldBe(cachedItem.KeyPlaintext);
+            result.KeyCiphertext.ShouldBe(cachedItem.KeyCiphertext);
         } 
 
         [Test]

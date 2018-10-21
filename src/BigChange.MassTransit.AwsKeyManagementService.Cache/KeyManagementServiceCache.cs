@@ -49,6 +49,7 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Cache
 
         public GenerateDataKeyResult GenerateDataKey(string keyID, Dictionary<string, string> encryptionContext, string keySpec)
         {
+            
             var key = _cacheKeyGenerator.Generate(new KeyCriteria 
             {
                 KeyId = keyID, 
@@ -61,11 +62,16 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Cache
             {
                 var item = _keyManagementService.GenerateDataKey(keyID, encryptionContext, keySpec);
 
-                _memoryCache.Set(key, item.ToByteArray());
+                _memoryCache.Set(key, new GenerateDataKeyResultSerializable
+                {
+                    KeyCiphertext = item.KeyCiphertext,
+                    KeyPlaintext = item.KeyPlaintext
+                }.GetBytes());
+
                 return item;
             }
 
-            return new GenerateDataKeyResult().FromByteArray(cacheItem);
+            return GenerateDataKeyResultSerializable.FromBytes(cacheItem);
         }
     }
 }

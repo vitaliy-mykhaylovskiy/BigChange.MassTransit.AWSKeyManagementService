@@ -7,6 +7,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BigChange.MassTransit.AwsKe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BigChange.MassTransit.AwsKeyManagementService.Tests", "test\BigChange.MassTransit.AwsKeyManagementService.Tests\BigChange.MassTransit.AwsKeyManagementService.Tests.csproj", "{2786AAAF-8496-4A18-848E-EB22C27B5C22}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{4590F08C-90EA-4803-BDF3-1AEC5A2069F4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BigChange.MassTransit.AwsKeyManagementService.Cache", "src\BigChange.MassTransit.AwsKeyManagementService.Cache\BigChange.MassTransit.AwsKeyManagementService.Cache.csproj", "{40E3ACE2-3D01-4426-9A23-1FCD1421EA54}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{2CCC3500-FA59-47AD-B593-96548B9E7A07}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BigChange.MassTransit.AwsKeyManagementService.Cache.Tests", "test\BigChange.MassTransit.AwsKeyManagementService.Cache.Tests\BigChange.MassTransit.AwsKeyManagementService.Cache.Tests.csproj", "{2A8728C9-2DC7-4717-BA35-E7958343A95A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,11 +29,23 @@ Global
 		{2786AAAF-8496-4A18-848E-EB22C27B5C22}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2786AAAF-8496-4A18-848E-EB22C27B5C22}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2786AAAF-8496-4A18-848E-EB22C27B5C22}.Release|Any CPU.Build.0 = Release|Any CPU
+		{40E3ACE2-3D01-4426-9A23-1FCD1421EA54}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{40E3ACE2-3D01-4426-9A23-1FCD1421EA54}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{40E3ACE2-3D01-4426-9A23-1FCD1421EA54}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{40E3ACE2-3D01-4426-9A23-1FCD1421EA54}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2A8728C9-2DC7-4717-BA35-E7958343A95A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A8728C9-2DC7-4717-BA35-E7958343A95A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A8728C9-2DC7-4717-BA35-E7958343A95A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2A8728C9-2DC7-4717-BA35-E7958343A95A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {95448AE3-10F4-49B5-A804-78D8DA081F91}
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{40E3ACE2-3D01-4426-9A23-1FCD1421EA54} = {4590F08C-90EA-4803-BDF3-1AEC5A2069F4}
+		{2A8728C9-2DC7-4717-BA35-E7958343A95A} = {2CCC3500-FA59-47AD-B593-96548B9E7A07}
 	EndGlobalSection
 EndGlobal

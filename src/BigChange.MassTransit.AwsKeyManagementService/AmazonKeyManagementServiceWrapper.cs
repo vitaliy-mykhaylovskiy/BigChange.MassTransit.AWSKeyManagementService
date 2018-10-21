@@ -5,11 +5,11 @@ using Amazon.Runtime.SharedInterfaces;
 
 namespace BigChange.MassTransit.AwsKeyManagementService
 {
-    public class AmazonKeyManagementService : IKeyManagementService
+    public class AmazonKeyManagementServiceWrapper : IKeyManagementService
     {   
         private IAmazonKeyManagementService _service;
 
-        public AmazonKeyManagementService(IAmazonKeyManagementService service)
+        public AmazonKeyManagementServiceWrapper(IAmazonKeyManagementService service)
         {
             _service = service;
         }

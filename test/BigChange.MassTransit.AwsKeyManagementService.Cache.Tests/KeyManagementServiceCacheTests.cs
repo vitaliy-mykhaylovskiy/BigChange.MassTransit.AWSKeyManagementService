@@ -1,17 +1,19 @@
 using System;
 using System.Collections.Generic;
 using Amazon.Runtime.SharedInterfaces;
+using BigChange.MassTransit.AwsKeyManagementService.Cache.CacheKeyGenerators;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using Moq;
 using NUnit.Framework;
 using Shouldly;
 
-namespace BigChange.MassTransit.AwsKeyManagementService.Tests
+namespace BigChange.MassTransit.AwsKeyManagementService.Cache.Tests
 {
     [TestFixture]
     public class KeyManagementServiceCacheTests
     {
-        private MemoryCache _memoryCache;
+        private Mock<IDistributedCache> _mockCache;
         private Mock<IKeyManagementService> _mockKeyManagementService;
         private string _keyId;
         private byte[] _keyCiphertext;
@@ -23,7 +25,7 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Tests
         [SetUp]
         public void SetUp()
         {
-            _memoryCache = new MemoryCache(new MemoryCacheOptions());
+            _mockCache = new Mock<IDistributedCache>();
             _mockKeyManagementService = new Mock<IKeyManagementService>();
             _keyId = Guid.NewGuid().ToString();
             _keyCiphertext = Guid.NewGuid().ToByteArray();
@@ -49,10 +51,11 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Tests
                 KeyCiphertext = _keyCiphertext,
                 KeyPlaintext = _key
             };
+            var mockCacheKeyGenerator = new Mock<ICacheKeyGenerator>();
 
-            _memoryCache.Set(string.Join("", new[] { _keyId, _contextKey, _contextValue }), expected);
+            _mockCache.Setup(x => x.Get(It.IsAny<string>())).Returns(expected.ToByteArray());
 
-            var result = new KeyManagementServiceCache(_mockKeyManagementService.Object, _memoryCache)
+            var result = new KeyManagementServiceCache(_mockKeyManagementService.Object, _mockCache.Object, mockCacheKeyGenerator.Object)
             .GenerateDataKey(_keyId, _encryptionContext, Guid.NewGuid().ToString());
 
             _mockKeyManagementService.Verify(
@@ -61,21 +64,18 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Tests
                     It.IsAny<Dictionary<string, string>>(),
                     It.IsAny<string>()), Times.Never);
 
-            result.ShouldBe(expected);
-        }
+            result.KeyPlaintext.ShouldBe(expected.KeyPlaintext);
+            result.KeyCiphertext.ShouldBe(expected.KeyCiphertext);
+        } 
 
         [Test]
         public void ShouldReturnKeyFromCacheOnDecrypt()
         {
-            _memoryCache.Set(string.Join("", new[]
-            {
-                System.Text.Encoding.UTF8.GetString(_keyCiphertext),
-                _contextKey,
-                _contextValue
-            }), _key);
-
-            var result = new KeyManagementServiceCache(_mockKeyManagementService.Object, _memoryCache)
-            .Decrypt(_keyCiphertext, _encryptionContext);
+            var cacheKeyGenerator = new Mock<ICacheKeyGenerator>();
+            _mockCache.Setup(x => x.Get(It.IsAny<string>())).Returns(_key);
+            
+            var result = new KeyManagementServiceCache(_mockKeyManagementService.Object, _mockCache.Object, cacheKeyGenerator.Object)
+                .Decrypt(_keyCiphertext, _encryptionContext);
 
             _mockKeyManagementService.Verify(
                 x => x.GenerateDataKey(

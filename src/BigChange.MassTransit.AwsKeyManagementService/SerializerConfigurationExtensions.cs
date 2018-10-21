@@ -62,11 +62,12 @@ namespace BigChange.MassTransit.AwsKeyManagementService
         }
 
         public static void UseAwsKeyManagementServiceSerializer(this IBusFactoryConfigurator configurator,
-            IAmazonKeyManagementService amazonKeyManagementService, IEncryptionContextBuilder encryptionContextBuilder,
+            IAmazonKeyManagementService amazonKeyManagementService, 
+            IEncryptionContextBuilder encryptionContextBuilder,
             string kmsKeyId)
         {
             var kmsSecureKeyProvider =
-                new KmsSecureKeyProvider(new AmazonKeyManagementService(amazonKeyManagementService), encryptionContextBuilder, kmsKeyId);
+                new KmsSecureKeyProvider(new AmazonKeyManagementServiceWrapper(amazonKeyManagementService), encryptionContextBuilder, kmsKeyId);
             var aesCryptoStreamProvider = new AesCryptoStreamProviderV2(kmsSecureKeyProvider);
 
             configurator.SetMessageSerializer(() => new EncryptedMessageSerializerV2(aesCryptoStreamProvider));
@@ -76,11 +77,12 @@ namespace BigChange.MassTransit.AwsKeyManagementService
         }
 
         public static void UseAwsKeyManagementServiceSerializer(this IReceiveEndpointConfigurator configurator,
-            IAmazonKeyManagementService amazonKeyManagementService, IEncryptionContextBuilder encryptionContextBuilder,
+            IAmazonKeyManagementService amazonKeyManagementService, 
+            IEncryptionContextBuilder encryptionContextBuilder,
             string kmsKeyId)
         {
             var kmsSecureKeyProvider =
-                new KmsSecureKeyProvider(new AmazonKeyManagementService(amazonKeyManagementService), encryptionContextBuilder, kmsKeyId);
+                new KmsSecureKeyProvider(new AmazonKeyManagementServiceWrapper(amazonKeyManagementService), encryptionContextBuilder, kmsKeyId);
             var aesCryptoStreamProvider = new AesCryptoStreamProviderV2(kmsSecureKeyProvider);
             configurator.SetMessageSerializer(() => new EncryptedMessageSerializerV2(aesCryptoStreamProvider));
 

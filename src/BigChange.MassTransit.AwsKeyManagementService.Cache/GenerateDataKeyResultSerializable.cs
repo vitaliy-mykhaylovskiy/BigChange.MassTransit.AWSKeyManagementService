@@ -4,7 +4,6 @@ using Amazon.Runtime.SharedInterfaces;
 
 namespace BigChange.MassTransit.AwsKeyManagementService.Cache
 {
-    [Serializable]
     public class GenerateDataKeyResultSerializable
     {
         public byte[] KeyCiphertext { get; set; }
@@ -16,14 +15,14 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Cache
             {
                 using (var sw = new BinaryWriter(ms))
                 {
-                    var KeyCiphertextLengthBytes = BitConverter.GetBytes(KeyCiphertext.Length);
-                    Array.Reverse(KeyCiphertextLengthBytes);
-                    var KeyPlaintextLengthBytes = BitConverter.GetBytes(KeyPlaintext.Length);
-                    Array.Reverse(KeyPlaintextLengthBytes);
+                    var keyCiphertextLengthBytes = BitConverter.GetBytes(KeyCiphertext.Length);
+                    Array.Reverse(keyCiphertextLengthBytes);
+                    var keyPlaintextLengthBytes = BitConverter.GetBytes(KeyPlaintext.Length);
+                    Array.Reverse(keyPlaintextLengthBytes);
 
-                    sw.Write(KeyCiphertextLengthBytes);
+                    sw.Write(keyCiphertextLengthBytes);
                     sw.Write(KeyCiphertext);
-                    sw.Write(KeyPlaintextLengthBytes);
+                    sw.Write(keyPlaintextLengthBytes);
                     sw.Write(KeyPlaintext);
 
                     sw.Flush();
@@ -39,18 +38,18 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Cache
             {
                 using (var sr = new BinaryReader(ms))
                 {
-                    var KeyCiphertextLengthBytes = sr.ReadBytes(sizeof(int));
-                    Array.Reverse(KeyCiphertextLengthBytes);
-                    var KeyCiphertextLength = BitConverter.ToInt32(KeyCiphertextLengthBytes, 0);
+                    var keyCiphertextLengthBytes = sr.ReadBytes(sizeof(int));
+                    Array.Reverse(keyCiphertextLengthBytes);
+                    var keyCiphertextLength = BitConverter.ToInt32(keyCiphertextLengthBytes, 0);
 
                     var obj = new GenerateDataKeyResultSerializable();
-                    obj.KeyCiphertext = sr.ReadBytes(KeyCiphertextLength);
+                    obj.KeyCiphertext = sr.ReadBytes(keyCiphertextLength);
 
-                    var KeyPlaintextLengthBytes = sr.ReadBytes(sizeof(int));
-                    Array.Reverse(KeyPlaintextLengthBytes);
-                    var KeyPlaintextLength = BitConverter.ToInt32(KeyPlaintextLengthBytes, 0);
+                    var keyPlaintextLengthBytes = sr.ReadBytes(sizeof(int));
+                    Array.Reverse(keyPlaintextLengthBytes);
+                    var keyPlaintextLength = BitConverter.ToInt32(keyPlaintextLengthBytes, 0);
 
-                    obj.KeyPlaintext = sr.ReadBytes(KeyPlaintextLength);
+                    obj.KeyPlaintext = sr.ReadBytes(keyPlaintextLength);
 
                     return new GenerateDataKeyResult
                     {

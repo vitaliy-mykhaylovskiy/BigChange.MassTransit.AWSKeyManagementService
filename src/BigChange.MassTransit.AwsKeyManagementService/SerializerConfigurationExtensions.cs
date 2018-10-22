@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Amazon;
+﻿using Amazon;
 using Amazon.KeyManagementService;
 using MassTransit;
 using MassTransit.Serialization;
@@ -66,28 +65,55 @@ namespace BigChange.MassTransit.AwsKeyManagementService
             IEncryptionContextBuilder encryptionContextBuilder,
             string kmsKeyId)
         {
-            var kmsSecureKeyProvider =
-                new KmsSecureKeyProvider(new AmazonKeyManagementServiceWrapper(amazonKeyManagementService), encryptionContextBuilder, kmsKeyId);
-            var aesCryptoStreamProvider = new AesCryptoStreamProviderV2(kmsSecureKeyProvider);
+	        var amazonKeyManagementServiceWrapper =
+		        new AmazonKeyManagementServiceWrapper(amazonKeyManagementService);
 
-            configurator.SetMessageSerializer(() => new EncryptedMessageSerializerV2(aesCryptoStreamProvider));
-
-            configurator.AddMessageDeserializer(EncryptedMessageSerializer.EncryptedContentType,
-                () => new EncryptedMessageDeserializerV2(BsonMessageSerializer.Deserializer, aesCryptoStreamProvider));
+	        configurator.UseAwsKeyManagementServiceSerializer(amazonKeyManagementServiceWrapper,
+		        encryptionContextBuilder, kmsKeyId);
         }
 
-        public static void UseAwsKeyManagementServiceSerializer(this IReceiveEndpointConfigurator configurator,
+	    public static void UseAwsKeyManagementServiceSerializer(this IBusFactoryConfigurator configurator,
+		    IKeyManagementService keyManagementService,
+		    IEncryptionContextBuilder encryptionContextBuilder,
+		    string kmsKeyId)
+	    {
+		    var kmsSecureKeyProvider =
+			    new KmsSecureKeyProvider(keyManagementService, encryptionContextBuilder, kmsKeyId);
+
+		    var aesCryptoStreamProvider = new AesCryptoStreamProviderV2(kmsSecureKeyProvider);
+
+		    configurator.SetMessageSerializer(() => new EncryptedMessageSerializerV2(aesCryptoStreamProvider));
+
+		    configurator.AddMessageDeserializer(EncryptedMessageSerializer.EncryptedContentType,
+			    () => new EncryptedMessageDeserializerV2(BsonMessageSerializer.Deserializer, aesCryptoStreamProvider));
+	    }
+
+		public static void UseAwsKeyManagementServiceSerializer(this IReceiveEndpointConfigurator configurator,
             IAmazonKeyManagementService amazonKeyManagementService, 
             IEncryptionContextBuilder encryptionContextBuilder,
             string kmsKeyId)
         {
-            var kmsSecureKeyProvider =
-                new KmsSecureKeyProvider(new AmazonKeyManagementServiceWrapper(amazonKeyManagementService), encryptionContextBuilder, kmsKeyId);
-            var aesCryptoStreamProvider = new AesCryptoStreamProviderV2(kmsSecureKeyProvider);
-            configurator.SetMessageSerializer(() => new EncryptedMessageSerializerV2(aesCryptoStreamProvider));
+	        var amazonKeyManagementServiceWrapper =
+		        new AmazonKeyManagementServiceWrapper(amazonKeyManagementService);
 
-            configurator.AddMessageDeserializer(EncryptedMessageSerializer.EncryptedContentType,
-                () => new EncryptedMessageDeserializerV2(BsonMessageSerializer.Deserializer, aesCryptoStreamProvider));
+	        configurator.UseAwsKeyManagementServiceSerializer(amazonKeyManagementServiceWrapper,
+				encryptionContextBuilder,
+				kmsKeyId);
         }
-    }
+
+	    public static void UseAwsKeyManagementServiceSerializer(this IReceiveEndpointConfigurator configurator,
+		    IKeyManagementService keyManagementService,
+		    IEncryptionContextBuilder encryptionContextBuilder,
+		    string kmsKeyId)
+	    {
+		    var kmsSecureKeyProvider =
+			    new KmsSecureKeyProvider(keyManagementService, encryptionContextBuilder, kmsKeyId);
+
+		    var aesCryptoStreamProvider = new AesCryptoStreamProviderV2(kmsSecureKeyProvider);
+		    configurator.SetMessageSerializer(() => new EncryptedMessageSerializerV2(aesCryptoStreamProvider));
+
+		    configurator.AddMessageDeserializer(EncryptedMessageSerializer.EncryptedContentType,
+			    () => new EncryptedMessageDeserializerV2(BsonMessageSerializer.Deserializer, aesCryptoStreamProvider));
+	    }
+	}
 }

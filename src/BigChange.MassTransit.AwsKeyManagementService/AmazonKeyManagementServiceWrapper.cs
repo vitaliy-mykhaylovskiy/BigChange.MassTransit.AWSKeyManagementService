@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Amazon.KeyManagementService;
 using Amazon.Runtime.SharedInterfaces;
 
@@ -7,7 +6,7 @@ namespace BigChange.MassTransit.AwsKeyManagementService
 {
     public class AmazonKeyManagementServiceWrapper : IKeyManagementService
     {   
-        private IAmazonKeyManagementService _service;
+        private readonly IAmazonKeyManagementService _service;
 
         public AmazonKeyManagementServiceWrapper(IAmazonKeyManagementService service)
         {
@@ -19,9 +18,9 @@ namespace BigChange.MassTransit.AwsKeyManagementService
             return _service.Decrypt(ciphertextBlob, encryptionContext);
         }
 
-        public GenerateDataKeyResult GenerateDataKey(string keyID, Dictionary<string, string> encryptionContext, string keySpec)
+        public GenerateDataKeyResult GenerateDataKey(string keyId, Dictionary<string, string> encryptionContext, string keySpec)
         {
-            return _service.GenerateDataKey(keyID, encryptionContext, keySpec);
+            return _service.GenerateDataKey(keyId, encryptionContext, keySpec);
         }
     }
 }

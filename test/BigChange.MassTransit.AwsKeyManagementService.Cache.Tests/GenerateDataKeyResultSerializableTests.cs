@@ -13,8 +13,8 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Cache.Tests
             var bytes = expected.GetBytes();
             var actual = GenerateDataKeyResultSerializable.FromBytes(bytes);
 
-            Assert.True(Enumerable.SequenceEqual(expected.KeyCiphertext, actual.KeyCiphertext));
-            Assert.True(Enumerable.SequenceEqual(expected.KeyPlaintext, actual.KeyPlaintext));
+            Assert.True(expected.KeyCiphertext.SequenceEqual(actual.KeyCiphertext));
+            Assert.True(expected.KeyPlaintext.SequenceEqual(actual.KeyPlaintext));
         }
 
         static IEnumerable<GenerateDataKeyResultSerializable> TestCases()

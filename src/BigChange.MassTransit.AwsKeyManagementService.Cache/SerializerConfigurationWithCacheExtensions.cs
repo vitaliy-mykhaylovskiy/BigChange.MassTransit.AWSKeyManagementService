@@ -62,8 +62,10 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Cache
 
 		    var cacheKeyGenerator = new CacheKeyGenerator();
 
+		    var cacheValueConverter = new CacheValueConverter();
+
 		    configurator.UseAwsKeyManagementServiceSerializerWithCache(amazonKeyManagementServiceWrapper, emptyEncryptionContextBuilder,
-			    kmsKeyId, distributedCache, cacheKeyGenerator);
+			    kmsKeyId, distributedCache, cacheKeyGenerator, cacheValueConverter);
 	    }
 
 	    public static void UseAwsKeyManagementServiceSerializerWithCache(this IReceiveEndpointConfigurator configurator,
@@ -75,8 +77,10 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Cache
 
 		    var cacheKeyGenerator = new CacheKeyGenerator();
 
+		    var cacheValueConverter = new CacheValueConverter();
+
 		    configurator.UseAwsKeyManagementServiceSerializerWithCache(amazonKeyManagementServiceWrapper, emptyEncryptionContextBuilder,
-			    kmsKeyId, distributedCache, cacheKeyGenerator);
+			    kmsKeyId, distributedCache, cacheKeyGenerator, cacheValueConverter);
 	    }
 
 		public static void UseAwsKeyManagementServiceSerializerWithCache(this IBusFactoryConfigurator configurator,
@@ -84,10 +88,11 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Cache
             IEncryptionContextBuilder encryptionContextBuilder,
             string kmsKeyId,
             IDistributedCache distributedCache,
-            ICacheKeyGenerator cacheKeyGenerator)
+            ICacheKeyGenerator cacheKeyGenerator,
+			ICacheValueConverter cacheValueConverter)
         {
 	        var keyManagementServiceCache =
-		        new KeyManagementServiceCache(amazonKeyManagementService, distributedCache, cacheKeyGenerator);
+		        new KeyManagementServiceCache(amazonKeyManagementService, distributedCache, cacheKeyGenerator, cacheValueConverter);
 
 	        configurator.UseAwsKeyManagementServiceSerializer(keyManagementServiceCache, encryptionContextBuilder,
 		        kmsKeyId);
@@ -98,10 +103,11 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Cache
             IEncryptionContextBuilder encryptionContextBuilder,
             string kmsKeyId,
             IDistributedCache distributedCache,
-            ICacheKeyGenerator cacheKeyGenerator)
+            ICacheKeyGenerator cacheKeyGenerator,
+	        ICacheValueConverter cacheValueConverter)
         {
 	        var keyManagementServiceCache =
-		        new KeyManagementServiceCache(amazonKeyManagementService, distributedCache, cacheKeyGenerator);
+		        new KeyManagementServiceCache(amazonKeyManagementService, distributedCache, cacheKeyGenerator, cacheValueConverter);
 
 	        configurator.UseAwsKeyManagementServiceSerializer(keyManagementServiceCache, encryptionContextBuilder,
 		        kmsKeyId);

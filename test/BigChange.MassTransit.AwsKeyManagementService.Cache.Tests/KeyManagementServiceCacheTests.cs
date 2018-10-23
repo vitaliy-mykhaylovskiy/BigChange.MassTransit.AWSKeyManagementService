@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Amazon.Runtime.SharedInterfaces;
 using BigChange.MassTransit.AwsKeyManagementService.Cache.CacheKeyGenerators;
 using Microsoft.Extensions.Caching.Distributed;
-using Microsoft.Extensions.Caching.Memory;
 using Moq;
 using NUnit.Framework;
 using Shouldly;
@@ -13,77 +12,146 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Cache.Tests
     [TestFixture]
     public class KeyManagementServiceCacheTests
     {
-        private Mock<IDistributedCache> _mockCache;
-        private Mock<IKeyManagementService> _mockKeyManagementService;
-        private string _keyId;
-        private byte[] _keyCiphertext;
-        private string _contextKey;
-        private string _contextValue;
+        private Mock<IDistributedCache> _cache;
+        private Mock<IKeyManagementService> _keyManagementService;
         private Dictionary<string, string> _encryptionContext;
-        private byte[] _key;
+	    private Mock<ICacheKeyGenerator> _cacheKeyGenerator;
+	    private Mock<ICacheValueConverter> _cacheValueConverter;
+	    private KeyManagementServiceCache _keyManagementServiceCache;
 
-        [SetUp]
+	    [SetUp]
         public void SetUp()
         {
-            _mockCache = new Mock<IDistributedCache>();
-            _mockKeyManagementService = new Mock<IKeyManagementService>();
-            _keyId = Guid.NewGuid().ToString();
-            _keyCiphertext = Guid.NewGuid().ToByteArray();
-            _contextKey = Guid.NewGuid().ToString();
-            _contextValue = Guid.NewGuid().ToString();
+            _cache = new Mock<IDistributedCache>();
+            _keyManagementService = new Mock<IKeyManagementService>();
+	        _cacheKeyGenerator = new Mock<ICacheKeyGenerator>();
+	        _cacheValueConverter = new Mock<ICacheValueConverter>();
+
+	        _keyManagementServiceCache = new KeyManagementServiceCache(_keyManagementService.Object,
+		        _cache.Object, _cacheKeyGenerator.Object, _cacheValueConverter.Object);
+
+			var contextKey = Guid.NewGuid().ToString();
+            var contextValue = Guid.NewGuid().ToString();
             _encryptionContext = new Dictionary<string, string>
             {
-                {_contextKey, _contextValue}
-            };
-            _key = new byte[]
-            {
-                31, 182, 254, 29, 98, 114, 85, 168, 176, 48, 113,
-                206, 198, 176, 181, 125, 106, 134, 98, 217, 113,
-                158, 88, 75, 118, 223, 117, 160, 224, 1, 47, 162
+                {contextKey, contextValue}
             };
         }
 
         [Test]
         public void ShouldReturnResultFromCacheOnGenerateDataKey()
         {
-            var cachedItem = new GenerateDataKeyResultSerializable
-            {
-                KeyCiphertext = _keyCiphertext,
-                KeyPlaintext = _key
-            };
-            var mockCacheKeyGenerator = new Mock<ICacheKeyGenerator>();
+			var keyId = Guid.NewGuid().ToString();
+			var cacheKey = Guid.NewGuid().ToString();
+	        _cacheKeyGenerator.Setup(x =>
+			        x.Generate(keyId, _encryptionContext))
+		        .Returns(cacheKey);
 
-            _mockCache.Setup(x => x.Get(It.IsAny<string>())).Returns(cachedItem.GetBytes());
+	        var cacheValue = new byte[] {10, 11, 12};
+	        _cache.Setup(x => x.Get(cacheKey))
+		        .Returns(cacheValue);
+	        var dataKeyResult = new GenerateDataKeyResult()
+	        {
+				KeyCiphertext = new byte[] {1,2,3},
+				KeyPlaintext = new byte[] {4,5,6}
+	        };
+	        _cacheValueConverter.Setup(x => x.Convert(cacheValue))
+		        .Returns(dataKeyResult);
 
-            var result = new KeyManagementServiceCache(_mockKeyManagementService.Object, _mockCache.Object, mockCacheKeyGenerator.Object)
-            .GenerateDataKey(_keyId, _encryptionContext, Guid.NewGuid().ToString());
+			var result = _keyManagementServiceCache.GenerateDataKey(keyId, _encryptionContext, Guid.NewGuid().ToString());
 
-            _mockKeyManagementService.Verify(
+            _keyManagementService.Verify(
                 x => x.GenerateDataKey(
                     It.IsAny<string>(),
                     It.IsAny<Dictionary<string, string>>(),
                     It.IsAny<string>()), Times.Never);
 
-            result.KeyPlaintext.ShouldBe(cachedItem.KeyPlaintext);
-            result.KeyCiphertext.ShouldBe(cachedItem.KeyCiphertext);
-        } 
-
-        [Test]
-        public void ShouldReturnKeyFromCacheOnDecrypt()
-        {
-            var cacheKeyGenerator = new Mock<ICacheKeyGenerator>();
-            _mockCache.Setup(x => x.Get(It.IsAny<string>())).Returns(_key);
-            
-            var result = new KeyManagementServiceCache(_mockKeyManagementService.Object, _mockCache.Object, cacheKeyGenerator.Object)
-                .Decrypt(_keyCiphertext, _encryptionContext);
-
-            _mockKeyManagementService.Verify(
-                x => x.GenerateDataKey(
-                    It.IsAny<string>(),
-                    It.IsAny<Dictionary<string, string>>(),
-                    It.IsAny<string>()), Times.Never);
-
-            result.ShouldBe(_key);
+            result.KeyPlaintext.ShouldBe(dataKeyResult.KeyPlaintext);
+            result.KeyCiphertext.ShouldBe(dataKeyResult.KeyCiphertext);
         }
-    }
+
+	    [Test]
+	    public void ShouldReturnResultFromKeyManagementServiceOnGenerateDataKey()
+	    {
+		    var keyId = Guid.NewGuid().ToString();
+		    var cacheKey = Guid.NewGuid().ToString();
+		    _cacheKeyGenerator.Setup(x =>
+				    x.Generate(keyId, _encryptionContext))
+			    .Returns(cacheKey);
+
+		    var cacheValue = new byte[] {1, 2, 3};
+
+			var expected = new GenerateDataKeyResult()
+		    {
+			    KeyCiphertext = new byte[] { 1, 2, 3 },
+			    KeyPlaintext = new byte[] { 4, 5, 6 }
+		    };
+		    _cacheValueConverter.Setup(x => x.Convert(expected))
+			    .Returns(cacheValue);
+
+		    _cache.Setup(x => x.Get(cacheKey))
+			    .Returns<byte[]>(null);
+
+			var keySpec = Guid.NewGuid().ToString();
+		    _keyManagementService.Setup(x => x.GenerateDataKey(keyId, _encryptionContext, keySpec))
+			    .Returns(expected);
+
+			var result = _keyManagementServiceCache.GenerateDataKey(keyId, _encryptionContext, keySpec);
+
+		    _cache.Verify(x => x.Set(cacheKey, cacheValue, It.IsAny<DistributedCacheEntryOptions>()), Times.Once);
+
+		    result.KeyPlaintext.ShouldBe(expected.KeyPlaintext);
+		    result.KeyCiphertext.ShouldBe(expected.KeyCiphertext);
+	    }
+
+		[Test]
+        public void ShouldReturnDecryptionKeyFromKeyManagementServiceOnDecrypt()
+        {
+	        var keyCiphertext = Guid.NewGuid().ToByteArray();
+	        
+			var cacheKey = Guid.NewGuid().ToString();
+	        _cacheKeyGenerator.Setup(x =>
+			        x.Generate(keyCiphertext, _encryptionContext))
+		        .Returns(cacheKey);
+
+	        _cache.Setup(x => x.Get(cacheKey))
+		        .Returns<byte[]>(null);
+
+			var cacheValue = new byte[] { 10, 11, 12 };
+	        
+			_keyManagementService.Setup(
+				x => x.Decrypt(keyCiphertext, _encryptionContext))
+				.Returns(cacheValue);
+
+			var result = _keyManagementServiceCache.Decrypt(keyCiphertext, _encryptionContext);
+
+	        _cache.Verify(x => x.Set(cacheKey, cacheValue, It.IsAny<DistributedCacheEntryOptions>()), Times.Once);
+
+			result.ShouldBe(cacheValue);
+        }
+
+	    [Test]
+	    public void ShouldReturnDecryptionKeyFromCacheOnDecrypt()
+	    {
+		    var keyCiphertext = Guid.NewGuid().ToByteArray();
+
+		    var cacheKey = Guid.NewGuid().ToString();
+		    _cacheKeyGenerator.Setup(x =>
+				    x.Generate(keyCiphertext, _encryptionContext))
+			    .Returns(cacheKey);
+
+		    var cacheValue = new byte[] { 10, 11, 12 };
+		    _cache.Setup(x => x.Get(cacheKey))
+			    .Returns(cacheValue);
+
+		    var result = _keyManagementServiceCache.Decrypt(keyCiphertext, _encryptionContext);
+
+		    _keyManagementService.Verify(
+			    x => x.Decrypt(
+				    It.IsAny<byte[]>(),
+				    It.IsAny<Dictionary<string, string>>()), Times.Never);
+
+		    result.ShouldBe(cacheValue);
+	    }
+	}
 }

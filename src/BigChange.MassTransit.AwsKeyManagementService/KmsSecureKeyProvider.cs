@@ -15,7 +15,7 @@ namespace BigChange.MassTransit.AwsKeyManagementService
 
         public KmsSecureKeyProvider(
             IKeyManagementService keyManagementService,
-            IEncryptionContextBuilder encryptionContextBuilder, 
+            IEncryptionContextBuilder encryptionContextBuilder,
             string kmsKeyId)
         {
             _keyManagementService = keyManagementService;

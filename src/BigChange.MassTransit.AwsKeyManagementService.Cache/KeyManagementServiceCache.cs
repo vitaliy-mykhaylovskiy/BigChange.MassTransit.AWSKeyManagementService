@@ -6,25 +6,23 @@ using Microsoft.Extensions.Caching.Distributed;
 
 namespace BigChange.MassTransit.AwsKeyManagementService.Cache
 {
-
-	
     public class KeyManagementServiceCache : IKeyManagementService
     {
         private readonly IKeyManagementService _keyManagementService;
         private readonly IDistributedCache _distributedCache;
         private readonly ICacheKeyGenerator _cacheKeyGenerator;
-	    private readonly ICacheValueConverter _cacheValueConverter;
+        private readonly ICacheValueConverter _cacheValueConverter;
 
-	    public KeyManagementServiceCache(
-            IKeyManagementService keyManagementService, 
+        public KeyManagementServiceCache(
+            IKeyManagementService keyManagementService,
             IDistributedCache distributedCache,
             ICacheKeyGenerator cacheKeyGenerator,
-	        ICacheValueConverter cacheValueConverter)
+            ICacheValueConverter cacheValueConverter)
         {
             _distributedCache = distributedCache;
             _cacheKeyGenerator = cacheKeyGenerator;
-	        _cacheValueConverter = cacheValueConverter;
-	        _keyManagementService = keyManagementService;
+            _cacheValueConverter = cacheValueConverter;
+            _keyManagementService = keyManagementService;
         }
 
         public byte[] Decrypt(byte[] ciphertextBlob, Dictionary<string, string> encryptionContext)
@@ -45,7 +43,8 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Cache
             return cacheItem;
         }
 
-        public GenerateDataKeyResult GenerateDataKey(string keyId, Dictionary<string, string> encryptionContext, string keySpec)
+        public GenerateDataKeyResult GenerateDataKey(string keyId, Dictionary<string, string> encryptionContext,
+            string keySpec)
         {
             var key = _cacheKeyGenerator.Generate(keyId, encryptionContext);
 
@@ -55,14 +54,14 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Cache
             {
                 var item = _keyManagementService.GenerateDataKey(keyId, encryptionContext, keySpec);
 
-	            var cacheValue = _cacheValueConverter.Convert(item);
+                var cacheValue = _cacheValueConverter.Convert(item);
 
-				_distributedCache.Set(key, cacheValue);
+                _distributedCache.Set(key, cacheValue);
 
                 return item;
             }
 
-	        return _cacheValueConverter.Convert(cacheItem);
+            return _cacheValueConverter.Convert(cacheItem);
         }
     }
 }

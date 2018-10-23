@@ -8,6 +8,7 @@ namespace BigChange.MassTransit.AwsKeyManagementService
     {
         byte[] Decrypt(byte[] ciphertextBlob, Dictionary<string, string> encryptionContext);
 
-        GenerateDataKeyResult GenerateDataKey(string keyID, Dictionary<string, string> encryptionContext, string keySpec);
+        GenerateDataKeyResult GenerateDataKey(string keyID, Dictionary<string, string> encryptionContext,
+            string keySpec);
     }
 }

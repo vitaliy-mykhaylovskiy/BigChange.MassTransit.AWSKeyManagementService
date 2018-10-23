@@ -61,59 +61,59 @@ namespace BigChange.MassTransit.AwsKeyManagementService
         }
 
         public static void UseAwsKeyManagementServiceSerializer(this IBusFactoryConfigurator configurator,
-            IAmazonKeyManagementService amazonKeyManagementService, 
+            IAmazonKeyManagementService amazonKeyManagementService,
             IEncryptionContextBuilder encryptionContextBuilder,
             string kmsKeyId)
         {
-	        var amazonKeyManagementServiceWrapper =
-		        new AmazonKeyManagementServiceWrapper(amazonKeyManagementService);
+            var amazonKeyManagementServiceWrapper =
+                new AmazonKeyManagementServiceWrapper(amazonKeyManagementService);
 
-	        configurator.UseAwsKeyManagementServiceSerializer(amazonKeyManagementServiceWrapper,
-		        encryptionContextBuilder, kmsKeyId);
+            configurator.UseAwsKeyManagementServiceSerializer(amazonKeyManagementServiceWrapper,
+                encryptionContextBuilder, kmsKeyId);
         }
 
-	    public static void UseAwsKeyManagementServiceSerializer(this IBusFactoryConfigurator configurator,
-		    IKeyManagementService keyManagementService,
-		    IEncryptionContextBuilder encryptionContextBuilder,
-		    string kmsKeyId)
-	    {
-		    var kmsSecureKeyProvider =
-			    new KmsSecureKeyProvider(keyManagementService, encryptionContextBuilder, kmsKeyId);
-
-		    var aesCryptoStreamProvider = new AesCryptoStreamProviderV2(kmsSecureKeyProvider);
-
-		    configurator.SetMessageSerializer(() => new EncryptedMessageSerializerV2(aesCryptoStreamProvider));
-
-		    configurator.AddMessageDeserializer(EncryptedMessageSerializer.EncryptedContentType,
-			    () => new EncryptedMessageDeserializerV2(BsonMessageSerializer.Deserializer, aesCryptoStreamProvider));
-	    }
-
-		public static void UseAwsKeyManagementServiceSerializer(this IReceiveEndpointConfigurator configurator,
-            IAmazonKeyManagementService amazonKeyManagementService, 
+        public static void UseAwsKeyManagementServiceSerializer(this IBusFactoryConfigurator configurator,
+            IKeyManagementService keyManagementService,
             IEncryptionContextBuilder encryptionContextBuilder,
             string kmsKeyId)
         {
-	        var amazonKeyManagementServiceWrapper =
-		        new AmazonKeyManagementServiceWrapper(amazonKeyManagementService);
+            var kmsSecureKeyProvider =
+                new KmsSecureKeyProvider(keyManagementService, encryptionContextBuilder, kmsKeyId);
 
-	        configurator.UseAwsKeyManagementServiceSerializer(amazonKeyManagementServiceWrapper,
-				encryptionContextBuilder,
-				kmsKeyId);
+            var aesCryptoStreamProvider = new AesCryptoStreamProviderV2(kmsSecureKeyProvider);
+
+            configurator.SetMessageSerializer(() => new EncryptedMessageSerializerV2(aesCryptoStreamProvider));
+
+            configurator.AddMessageDeserializer(EncryptedMessageSerializer.EncryptedContentType,
+                () => new EncryptedMessageDeserializerV2(BsonMessageSerializer.Deserializer, aesCryptoStreamProvider));
         }
 
-	    public static void UseAwsKeyManagementServiceSerializer(this IReceiveEndpointConfigurator configurator,
-		    IKeyManagementService keyManagementService,
-		    IEncryptionContextBuilder encryptionContextBuilder,
-		    string kmsKeyId)
-	    {
-		    var kmsSecureKeyProvider =
-			    new KmsSecureKeyProvider(keyManagementService, encryptionContextBuilder, kmsKeyId);
+        public static void UseAwsKeyManagementServiceSerializer(this IReceiveEndpointConfigurator configurator,
+            IAmazonKeyManagementService amazonKeyManagementService,
+            IEncryptionContextBuilder encryptionContextBuilder,
+            string kmsKeyId)
+        {
+            var amazonKeyManagementServiceWrapper =
+                new AmazonKeyManagementServiceWrapper(amazonKeyManagementService);
 
-		    var aesCryptoStreamProvider = new AesCryptoStreamProviderV2(kmsSecureKeyProvider);
-		    configurator.SetMessageSerializer(() => new EncryptedMessageSerializerV2(aesCryptoStreamProvider));
+            configurator.UseAwsKeyManagementServiceSerializer(amazonKeyManagementServiceWrapper,
+                encryptionContextBuilder,
+                kmsKeyId);
+        }
 
-		    configurator.AddMessageDeserializer(EncryptedMessageSerializer.EncryptedContentType,
-			    () => new EncryptedMessageDeserializerV2(BsonMessageSerializer.Deserializer, aesCryptoStreamProvider));
-	    }
-	}
+        public static void UseAwsKeyManagementServiceSerializer(this IReceiveEndpointConfigurator configurator,
+            IKeyManagementService keyManagementService,
+            IEncryptionContextBuilder encryptionContextBuilder,
+            string kmsKeyId)
+        {
+            var kmsSecureKeyProvider =
+                new KmsSecureKeyProvider(keyManagementService, encryptionContextBuilder, kmsKeyId);
+
+            var aesCryptoStreamProvider = new AesCryptoStreamProviderV2(kmsSecureKeyProvider);
+            configurator.SetMessageSerializer(() => new EncryptedMessageSerializerV2(aesCryptoStreamProvider));
+
+            configurator.AddMessageDeserializer(EncryptedMessageSerializer.EncryptedContentType,
+                () => new EncryptedMessageDeserializerV2(BsonMessageSerializer.Deserializer, aesCryptoStreamProvider));
+        }
+    }
 }

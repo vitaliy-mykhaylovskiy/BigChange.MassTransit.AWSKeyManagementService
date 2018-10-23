@@ -53,7 +53,8 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Cache.Tests.RabbitMq
 
         protected override void ConfigureRabbitMqBus(IRabbitMqBusFactoryConfigurator configurator)
         {
-            configurator.UseAwsKeyManagementServiceSerializerWithMemoryCache(_keyId, _amazonKeyManagementService.Object, Options.Create(new MemoryDistributedCacheOptions()));
+            configurator.UseAwsKeyManagementServiceSerializerWithMemoryCache(_keyId, _amazonKeyManagementService.Object,
+                Options.Create(new MemoryDistributedCacheOptions()));
 
             base.ConfigureRabbitMqBus(configurator);
         }
@@ -65,18 +66,18 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Cache.Tests.RabbitMq
             await Bus.Publish(new PingMessage());
             await Bus.Publish(new PingMessage());
 
-			var received1 = await _handler;
-			var received2 = await _handler;
+            var received1 = await _handler;
+            var received2 = await _handler;
 
-			Assert.AreEqual(EncryptedMessageSerializerV2.EncryptedContentType, received1.ReceiveContext.ContentType);
-			Assert.AreEqual(EncryptedMessageSerializerV2.EncryptedContentType, received2.ReceiveContext.ContentType);
+            Assert.AreEqual(EncryptedMessageSerializerV2.EncryptedContentType, received1.ReceiveContext.ContentType);
+            Assert.AreEqual(EncryptedMessageSerializerV2.EncryptedContentType, received2.ReceiveContext.ContentType);
 
-	        _amazonKeyManagementService.Verify(x =>
-		        x.GenerateDataKey(_keyId,
-			        It.Is<Dictionary<string, string>>(d => d.Count == 0), "AES_256"), Times.Once);
+            _amazonKeyManagementService.Verify(x =>
+                x.GenerateDataKey(_keyId,
+                    It.Is<Dictionary<string, string>>(d => d.Count == 0), "AES_256"), Times.Once);
 
-	        _amazonKeyManagementService.Verify(x => x.Decrypt(It.IsAny<byte[]>(),
-		        It.IsAny<Dictionary<string, string>>()), Times.Once);
+            _amazonKeyManagementService.Verify(x => x.Decrypt(It.IsAny<byte[]>(),
+                It.IsAny<Dictionary<string, string>>()), Times.Once);
         }
     }
 }

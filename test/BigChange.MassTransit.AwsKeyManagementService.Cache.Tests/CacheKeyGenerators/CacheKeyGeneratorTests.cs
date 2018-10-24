@@ -1,10 +1,10 @@
+using System;
 using System.Collections.Generic;
 using BigChange.MassTransit.AwsKeyManagementService.Cache.CacheKeyGenerators;
 using NUnit.Framework;
 using Shouldly;
-using System;
 
-namespace BigChange.MassTransit.AwsKeyManagementService.Cache.Tests
+namespace BigChange.MassTransit.AwsKeyManagementService.Cache.Tests.CacheKeyGenerators
 {
     [TestFixture]
     public class CacheKeyGeneratorTests

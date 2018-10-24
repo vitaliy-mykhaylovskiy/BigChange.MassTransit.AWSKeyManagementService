@@ -20,11 +20,4 @@
     <ProjectReference Include="..\..\src\BigChange.MassTransit.AwsKeyManagementService.Cache\BigChange.MassTransit.AwsKeyManagementService.Cache.csproj" />
     <ProjectReference Include="..\BigChange.MassTransit.AwsKeyManagementService.Tests\BigChange.MassTransit.AwsKeyManagementService.Tests.csproj" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="MassTransit.TestFramework">
-      <HintPath>..\..\..\..\Users\KevinSmith\.nuget\packages\masstransit.testframework\5.1.4\lib\netstandard2.0\MassTransit.TestFramework.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
 </Project>

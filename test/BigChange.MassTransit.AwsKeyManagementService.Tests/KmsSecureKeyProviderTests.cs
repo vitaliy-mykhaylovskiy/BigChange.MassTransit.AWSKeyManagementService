@@ -31,7 +31,7 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Tests
             encryptionContextBuilder.Setup(x => x.BuildEncryptionContext(It.IsAny<ReceiveContext>()))
                 .Returns(encryptionContext);
 
-            var amazonKeyManagementService = new Mock<IAmazonKeyManagementService>();
+            var amazonKeyManagementService = new Mock<IKeyManagementService>();
             amazonKeyManagementService.Setup(x =>
                     x.Decrypt(It.Is<byte[]>(bytes1 => bytes1.SequenceEqual(keyCiphertext)), encryptionContext))
                 .Returns(key);
@@ -71,7 +71,7 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Tests
             encryptionContextBuilder.Setup(x => x.BuildEncryptionContext(It.IsAny<SendContext>()))
                 .Returns(encryptionContext);
 
-            var amazonKeyManagementService = new Mock<IAmazonKeyManagementService>();
+            var amazonKeyManagementService = new Mock<IKeyManagementService>();
             amazonKeyManagementService.Setup(x =>
                     x.GenerateDataKey(keyId, encryptionContext, "AES_256"))
                 .Returns(new GenerateDataKeyResult {KeyCiphertext = keyCiphertext, KeyPlaintext = key});

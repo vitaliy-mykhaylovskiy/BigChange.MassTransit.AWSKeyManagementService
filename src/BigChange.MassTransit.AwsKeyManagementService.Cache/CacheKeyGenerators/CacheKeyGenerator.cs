@@ -6,14 +6,14 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Cache.CacheKeyGenerators
 {
     public class CacheKeyGenerator : ICacheKeyGenerator
     {
-        public string Generate(string keyId, IReadOnlyDictionary<string, string> context)
+        public string Generate(DataKeyIdentifier key)
         {
-            return keyId + BuildContextKeyString(context);
+            return key.KeyId + BuildContextKeyString(key.EncryptionContext);
         }
 
-        public string Generate(byte[] ciphertextBlob, IReadOnlyDictionary<string, string> context)
+        public string Generate(DecryptIdentifier identifier)
         {
-            return Convert.ToBase64String(ciphertextBlob) + BuildContextKeyString(context);
+            return Convert.ToBase64String(identifier.CiphertextBlob) + BuildContextKeyString(identifier.EncryptionContext);
         }
 
         private static string BuildContextKeyString(IReadOnlyDictionary<string, string> context)

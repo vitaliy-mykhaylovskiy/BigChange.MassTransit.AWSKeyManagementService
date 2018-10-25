@@ -140,9 +140,11 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Cache
             ICacheKeyGenerator cacheKeyGenerator,
             ICacheValueConverter cacheValueConverter)
         {
+            var dataKeyCache = new DataKeyCache(cacheKeyGenerator, distributedCache, cacheValueConverter);
+            var decryptKeyCache = new DecryptKeyCache(cacheKeyGenerator, distributedCache);
+
             var keyManagementServiceCache =
-                new KeyManagementServiceCache(amazonKeyManagementService, distributedCache, cacheKeyGenerator,
-                    cacheValueConverter);
+                new KeyManagementServiceCache(amazonKeyManagementService, dataKeyCache, decryptKeyCache);
 
             configurator.UseAwsKeyManagementServiceSerializer(keyManagementServiceCache, encryptionContextBuilder,
                 kmsKeyId);
@@ -156,9 +158,11 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Cache
             ICacheKeyGenerator cacheKeyGenerator,
             ICacheValueConverter cacheValueConverter)
         {
+            var dataKeyCache = new DataKeyCache(cacheKeyGenerator, distributedCache, cacheValueConverter);
+            var decryptKeyCache = new DecryptKeyCache(cacheKeyGenerator, distributedCache);
+
             var keyManagementServiceCache =
-                new KeyManagementServiceCache(amazonKeyManagementService, distributedCache, cacheKeyGenerator,
-                    cacheValueConverter);
+                new KeyManagementServiceCache(amazonKeyManagementService, dataKeyCache, decryptKeyCache);
 
             configurator.UseAwsKeyManagementServiceSerializer(keyManagementServiceCache, encryptionContextBuilder,
                 kmsKeyId);

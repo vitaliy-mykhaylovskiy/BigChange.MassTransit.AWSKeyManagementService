@@ -1,4 +1,5 @@
-﻿using Amazon.KeyManagementService;
+﻿using Amazon;
+using Amazon.KeyManagementService;
 using MassTransit;
 using Microsoft.Extensions.Caching.Distributed;
 using BigChange.MassTransit.AwsKeyManagementService.Cache.CacheKeyGenerators;
@@ -29,6 +30,24 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Cache
 
         public static void UseAwsKeyManagementServiceSerializerWithMemoryCache(
             this IBusFactoryConfigurator configurator,
+            RegionEndpoint region, string kmsKeyId, IOptions<MemoryDistributedCacheOptions> options)
+        {
+            var amazonKeyManagementServiceClient = new AmazonKeyManagementServiceClient(region);
+            configurator.UseAwsKeyManagementServiceSerializerWithMemoryCache(kmsKeyId, amazonKeyManagementServiceClient,
+                options);
+        }
+
+        public static void UseAwsKeyManagementServiceSerializerWithMemoryCache(
+            this IReceiveEndpointConfigurator configurator,
+            RegionEndpoint region, string kmsKeyId, IOptions<MemoryDistributedCacheOptions> options)
+        {
+            var amazonKeyManagementServiceClient = new AmazonKeyManagementServiceClient(region);
+            configurator.UseAwsKeyManagementServiceSerializerWithMemoryCache(kmsKeyId, amazonKeyManagementServiceClient,
+                options);
+        }
+
+        public static void UseAwsKeyManagementServiceSerializerWithMemoryCache(
+            this IBusFactoryConfigurator configurator,
             string kmsKeyId, IAmazonKeyManagementService amazonKeyManagementService,
             IOptions<MemoryDistributedCacheOptions> options)
         {
@@ -44,7 +63,7 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Cache
             configurator.UseAwsKeyManagementServiceSerializerWithCache(kmsKeyId, amazonKeyManagementService,
                 new MemoryDistributedCache(options));
         }
-
+        
         public static void UseAwsKeyManagementServiceSerializerWithCache(this IBusFactoryConfigurator configurator,
             string kmsKeyId, IDistributedCache distributedCache)
         {
@@ -58,6 +77,24 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Cache
             string kmsKeyId, IDistributedCache distributedCache)
         {
             var amazonKeyManagementServiceClient = new AmazonKeyManagementServiceClient();
+
+            configurator.UseAwsKeyManagementServiceSerializerWithCache(
+                kmsKeyId, amazonKeyManagementServiceClient, distributedCache);
+        }
+
+        public static void UseAwsKeyManagementServiceSerializerWithCache(this IBusFactoryConfigurator configurator,
+            RegionEndpoint region, string kmsKeyId, IDistributedCache distributedCache)
+        {
+            var amazonKeyManagementServiceClient = new AmazonKeyManagementServiceClient(region);
+
+            configurator.UseAwsKeyManagementServiceSerializerWithCache(
+                kmsKeyId, amazonKeyManagementServiceClient, distributedCache);
+        }
+
+        public static void UseAwsKeyManagementServiceSerializerWithCache(this IReceiveEndpointConfigurator configurator,
+            RegionEndpoint region, string kmsKeyId, IDistributedCache distributedCache)
+        {
+            var amazonKeyManagementServiceClient = new AmazonKeyManagementServiceClient(region);
 
             configurator.UseAwsKeyManagementServiceSerializerWithCache(
                 kmsKeyId, amazonKeyManagementServiceClient, distributedCache);

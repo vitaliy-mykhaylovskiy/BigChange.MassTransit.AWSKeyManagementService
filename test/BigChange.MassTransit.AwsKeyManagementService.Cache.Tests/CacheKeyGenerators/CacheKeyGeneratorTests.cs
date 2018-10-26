@@ -24,7 +24,7 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Cache.Tests.CacheKeyGene
             var sut = new CacheKeyGenerator();
             var key = sut.Generate(new DataKeyIdentifier(keyId, encryptionContext));
 
-            key.ShouldBe(string.Join("", keyId, encryptionContext.Keys.ElementAt(0), encryptionContext.Values.ElementAt(0), encryptionContext.Keys.ElementAt(1), encryptionContext.Values.ElementAt(0)));
+            key.ShouldBe(string.Join("", keyId, encryptionContext.Keys.ElementAt(0), encryptionContext.Values.ElementAt(0), encryptionContext.Keys.ElementAt(1), encryptionContext.Values.ElementAt(1)));
         }
 
         [Test]
@@ -41,7 +41,7 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Cache.Tests.CacheKeyGene
             var sut = new CacheKeyGenerator();
             var key = sut.Generate(new DecryptIdentifier(ciphertextBlob, encryptionContext));
 
-            key.ShouldBe(string.Join("", Convert.ToBase64String(ciphertextBlob), encryptionContext.Keys.ElementAt(0), encryptionContext.Values.ElementAt(0), encryptionContext.Keys.ElementAt(1), encryptionContext.Values.ElementAt(0)));
+            key.ShouldBe(string.Join("", Convert.ToBase64String(ciphertextBlob), encryptionContext.Keys.ElementAt(0), encryptionContext.Values.ElementAt(0), encryptionContext.Keys.ElementAt(1), encryptionContext.Values.ElementAt(1)));
         }
     }
 }

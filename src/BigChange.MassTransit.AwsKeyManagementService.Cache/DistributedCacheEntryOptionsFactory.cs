@@ -1,12 +1,23 @@
+using System;
 using Microsoft.Extensions.Caching.Distributed;
 
 namespace BigChange.MassTransit.AwsKeyManagementService.Cache
 {
-    public class DistributedCacheEntryOptionsFactory : IDistributedCacheEntryOptionsFactory
+    public class AbsoluteExpirationRelativeToNowOptionsFactory : IDistributedCacheEntryOptionsFactory
     {
-        public DistributedCacheEntryOptions Create()
+        private readonly TimeSpan _absoluteExpirationRelativeToNow;
+
+        public AbsoluteExpirationRelativeToNowOptionsFactory(TimeSpan absoluteExpirationRelativeToNow)
         {
-            throw new System.NotImplementedException();
+            _absoluteExpirationRelativeToNow = absoluteExpirationRelativeToNow;
+        }
+
+        public DistributedCacheEntryOptions Create(CacheItemType type)
+        {
+            return new DistributedCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = _absoluteExpirationRelativeToNow;
+            };
         }
     }
 }

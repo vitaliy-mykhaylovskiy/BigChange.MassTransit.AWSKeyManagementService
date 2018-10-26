@@ -7,11 +7,13 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Cache
     {
         private readonly ICacheKeyGenerator _cacheKeyGenerator;
         private readonly IDistributedCache _distributedCache;
+        private readonly IDistributedCacheEntryOptionsFactory _distributedCacheEntryOptionsFactory;
 
-        public DecryptKeyCache(ICacheKeyGenerator cacheKeyGenerator, IDistributedCache distributedCache)
+        public DecryptKeyCache(ICacheKeyGenerator cacheKeyGenerator, IDistributedCache distributedCache, IDistributedCacheEntryOptionsFactory distributedCacheEntryOptionsFactory)
         {
             _cacheKeyGenerator = cacheKeyGenerator;
             _distributedCache = distributedCache;
+            _distributedCacheEntryOptionsFactory = distributedCacheEntryOptionsFactory;
         }
 
         public byte[] Get(DecryptIdentifier identifier)
@@ -27,7 +29,9 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Cache
         {
             var cacheKey = _cacheKeyGenerator.Generate(identifier);
 
-            _distributedCache.Set(cacheKey, item);
+            var options = _distributedCacheEntryOptionsFactory.Create(CacheItemType.Decrypt);
+
+            _distributedCache.Set(cacheKey, item, options);
         }
     }
 }

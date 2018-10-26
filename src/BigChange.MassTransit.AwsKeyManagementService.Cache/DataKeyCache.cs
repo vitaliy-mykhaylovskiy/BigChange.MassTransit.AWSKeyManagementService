@@ -9,13 +9,16 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Cache
         private readonly ICacheKeyGenerator _cacheKeyGenerator;
         private readonly IDistributedCache _distributedCache;
         private readonly ICacheValueConverter _cacheValueConverter;
+        private readonly IDistributedCacheEntryOptionsFactory _distributedCacheEntryOptionsFactory;
 
         public DataKeyCache(ICacheKeyGenerator cacheKeyGenerator,
-            IDistributedCache distributedCache, ICacheValueConverter cacheValueConverter)
+            IDistributedCache distributedCache, ICacheValueConverter cacheValueConverter,
+            IDistributedCacheEntryOptionsFactory distributedCacheEntryOptionsFactory)
         {
             _cacheKeyGenerator = cacheKeyGenerator;
             _distributedCache = distributedCache;
             _cacheValueConverter = cacheValueConverter;
+            _distributedCacheEntryOptionsFactory = distributedCacheEntryOptionsFactory;
         }
 
         public GenerateDataKeyResult Get(DataKeyIdentifier key)
@@ -38,7 +41,9 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Cache
 
             var cacheValue = _cacheValueConverter.Convert(item);
 
-            _distributedCache.Set(cacheKey, cacheValue);
+            var options = _distributedCacheEntryOptionsFactory.Create(CacheItemType.DataKey);
+
+            _distributedCache.Set(cacheKey, cacheValue, options);
         }
     }
 }

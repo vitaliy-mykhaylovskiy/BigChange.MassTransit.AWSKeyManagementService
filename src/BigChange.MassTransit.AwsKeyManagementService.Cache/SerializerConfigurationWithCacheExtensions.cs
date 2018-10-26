@@ -1,4 +1,5 @@
-﻿using Amazon;
+﻿using System;
+using Amazon;
 using Amazon.KeyManagementService;
 using MassTransit;
 using Microsoft.Extensions.Caching.Distributed;
@@ -111,9 +112,11 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Cache
 
             var cacheValueConverter = new CacheValueConverter();
 
+            var distributedCacheEntryOptionsFactory = new AbsoluteExpirationRelativeToNowOptionsFactory(TimeSpan.FromMinutes(10));
+
             configurator.UseAwsKeyManagementServiceSerializerWithCache(amazonKeyManagementServiceWrapper,
                 emptyEncryptionContextBuilder,
-                kmsKeyId, distributedCache, cacheKeyGenerator, cacheValueConverter);
+                kmsKeyId, distributedCache, cacheKeyGenerator, cacheValueConverter, distributedCacheEntryOptionsFactory);
         }
 
         public static void UseAwsKeyManagementServiceSerializerWithCache(this IReceiveEndpointConfigurator configurator,
@@ -127,9 +130,11 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Cache
 
             var cacheValueConverter = new CacheValueConverter();
 
+            var distributedCacheEntryOptionsFactory = new AbsoluteExpirationRelativeToNowOptionsFactory(TimeSpan.FromMinutes(10));
+
             configurator.UseAwsKeyManagementServiceSerializerWithCache(amazonKeyManagementServiceWrapper,
                 emptyEncryptionContextBuilder,
-                kmsKeyId, distributedCache, cacheKeyGenerator, cacheValueConverter);
+                kmsKeyId, distributedCache, cacheKeyGenerator, cacheValueConverter, distributedCacheEntryOptionsFactory);
         }
 
         public static void UseAwsKeyManagementServiceSerializerWithCache(this IBusFactoryConfigurator configurator,
@@ -138,10 +143,11 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Cache
             string kmsKeyId,
             IDistributedCache distributedCache,
             ICacheKeyGenerator cacheKeyGenerator,
-            ICacheValueConverter cacheValueConverter)
+            ICacheValueConverter cacheValueConverter,
+            IDistributedCacheEntryOptionsFactory distributedCacheEntryOptionsFactory)
         {
-            var dataKeyCache = new DataKeyCache(cacheKeyGenerator, distributedCache, cacheValueConverter);
-            var decryptKeyCache = new DecryptKeyCache(cacheKeyGenerator, distributedCache);
+            var dataKeyCache = new DataKeyCache(cacheKeyGenerator, distributedCache, cacheValueConverter, distributedCacheEntryOptionsFactory);
+            var decryptKeyCache = new DecryptKeyCache(cacheKeyGenerator, distributedCache, distributedCacheEntryOptionsFactory);
 
             var keyManagementServiceCache =
                 new KeyManagementServiceCache(amazonKeyManagementService, dataKeyCache, decryptKeyCache);
@@ -156,10 +162,11 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Cache
             string kmsKeyId,
             IDistributedCache distributedCache,
             ICacheKeyGenerator cacheKeyGenerator,
-            ICacheValueConverter cacheValueConverter)
+            ICacheValueConverter cacheValueConverter,
+            IDistributedCacheEntryOptionsFactory distributedCacheEntryOptionsFactory)
         {
-            var dataKeyCache = new DataKeyCache(cacheKeyGenerator, distributedCache, cacheValueConverter);
-            var decryptKeyCache = new DecryptKeyCache(cacheKeyGenerator, distributedCache);
+            var dataKeyCache = new DataKeyCache(cacheKeyGenerator, distributedCache, cacheValueConverter, distributedCacheEntryOptionsFactory);
+            var decryptKeyCache = new DecryptKeyCache(cacheKeyGenerator, distributedCache, distributedCacheEntryOptionsFactory);
 
             var keyManagementServiceCache =
                 new KeyManagementServiceCache(amazonKeyManagementService, dataKeyCache, decryptKeyCache);

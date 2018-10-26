@@ -15,6 +15,7 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Cache.Tests
         private Mock<ICacheKeyGenerator> _cacheKeyGenerator;
         private Mock<ICacheValueConverter> _cacheValueConverter;
         private Mock<IDistributedCache> _distributedCache;
+        private Mock<IDistributedCacheEntryOptionsFactory> _distributedCacheEntryOptionsFactory;
 
         [SetUp]
         public void SetUp()
@@ -22,6 +23,7 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Cache.Tests
             _cacheKeyGenerator = new Mock<ICacheKeyGenerator>();
             _cacheValueConverter = new Mock<ICacheValueConverter>();
             _distributedCache = new Mock<IDistributedCache>();
+            _distributedCacheEntryOptionsFactory = new Mock<IDistributedCacheEntryOptionsFactory>();
         }
 
         [Test]
@@ -42,7 +44,7 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Cache.Tests
             _cacheValueConverter.Setup(x => x.Convert(cacheValue))
                 .Returns(expected);
 
-            var dataKeyCache = new DataKeyCache(_cacheKeyGenerator.Object, _distributedCache.Object, _cacheValueConverter.Object);
+            var dataKeyCache = new DataKeyCache(_cacheKeyGenerator.Object, _distributedCache.Object, _cacheValueConverter.Object, _distributedCacheEntryOptionsFactory.Object);
 
             var result = dataKeyCache.Get(identifier);
 
@@ -62,7 +64,7 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Cache.Tests
             _distributedCache.Setup(x => x.Get(cacheKey))
                 .Returns<byte[]>(null);
             
-            var dataKeyCache = new DataKeyCache(_cacheKeyGenerator.Object, _distributedCache.Object, _cacheValueConverter.Object);
+            var dataKeyCache = new DataKeyCache(_cacheKeyGenerator.Object, _distributedCache.Object, _cacheValueConverter.Object, _distributedCacheEntryOptionsFactory.Object);
 
             var result = dataKeyCache.Get(identifier);
 
@@ -86,11 +88,15 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Cache.Tests
             _cacheValueConverter.Setup(x => x.Convert(item))
                 .Returns(cacheValue);
 
-            var dataKeyCache = new DataKeyCache(_cacheKeyGenerator.Object, _distributedCache.Object, _cacheValueConverter.Object);
+            var entryOptions = new DistributedCacheEntryOptions();
+            _distributedCacheEntryOptionsFactory.Setup(x => x.Create(CacheItemType.DataKey))
+                .Returns(entryOptions);
+
+            var dataKeyCache = new DataKeyCache(_cacheKeyGenerator.Object, _distributedCache.Object, _cacheValueConverter.Object, _distributedCacheEntryOptionsFactory.Object);
 
             dataKeyCache.Set(identifier, item);
 
-            _distributedCache.Verify(x=> x.Set(cacheKey, cacheValue, It.IsAny<DistributedCacheEntryOptions>()));
+            _distributedCache.Verify(x=> x.Set(cacheKey, cacheValue, entryOptions));
         }
     }
 }

@@ -13,12 +13,14 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Cache.Tests
     {
         private Mock<ICacheKeyGenerator> _cacheKeyGenerator;
         private Mock<IDistributedCache> _distributedCache;
+        private Mock<IDistributedCacheEntryOptionsFactory> _distributedCacheEntryOptionsFactory;
 
         [SetUp]
         public void SetUp()
         {
             _cacheKeyGenerator = new Mock<ICacheKeyGenerator>();
             _distributedCache = new Mock<IDistributedCache>();
+            _distributedCacheEntryOptionsFactory = new Mock<IDistributedCacheEntryOptionsFactory>();
         }
 
         [Test]
@@ -35,7 +37,7 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Cache.Tests
             _distributedCache.Setup(x => x.Get(cacheKey))
                 .Returns(cacheValue);
             
-            var dataKeyCache = new DecryptKeyCache(_cacheKeyGenerator.Object, _distributedCache.Object);
+            var dataKeyCache = new DecryptKeyCache(_cacheKeyGenerator.Object, _distributedCache.Object, _distributedCacheEntryOptionsFactory.Object);
 
             var result = dataKeyCache.Get(identifier);
 
@@ -55,7 +57,7 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Cache.Tests
             _distributedCache.Setup(x => x.Get(cacheKey))
                 .Returns<byte[]>(null);
 
-            var dataKeyCache = new DecryptKeyCache(_cacheKeyGenerator.Object, _distributedCache.Object);
+            var dataKeyCache = new DecryptKeyCache(_cacheKeyGenerator.Object, _distributedCache.Object, _distributedCacheEntryOptionsFactory.Object);
 
             var result = dataKeyCache.Get(identifier);
 
@@ -74,12 +76,16 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Cache.Tests
                 .Returns(cacheKey);
 
             var cacheValue = new byte[] { 1, 2, 3 };
-            
-            var dataKeyCache = new DecryptKeyCache(_cacheKeyGenerator.Object, _distributedCache.Object);
+
+            var entryOptions = new DistributedCacheEntryOptions();
+            _distributedCacheEntryOptionsFactory.Setup(x => x.Create(CacheItemType.Decrypt))
+                .Returns(entryOptions);
+
+            var dataKeyCache = new DecryptKeyCache(_cacheKeyGenerator.Object, _distributedCache.Object, _distributedCacheEntryOptionsFactory.Object);
 
             dataKeyCache.Set(identifier, cacheValue);
 
-            _distributedCache.Verify(x => x.Set(cacheKey, cacheValue, It.IsAny<DistributedCacheEntryOptions>()));
+            _distributedCache.Verify(x => x.Set(cacheKey, cacheValue, entryOptions));
         }
     }
 }

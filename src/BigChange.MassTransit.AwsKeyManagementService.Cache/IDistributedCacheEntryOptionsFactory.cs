@@ -4,6 +4,6 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Cache
 {
     public interface IDistributedCacheEntryOptionsFactory
     {
-        DistributedCacheEntryOptions Create();
+        DistributedCacheEntryOptions Create(CacheItemType type);
     }
 }

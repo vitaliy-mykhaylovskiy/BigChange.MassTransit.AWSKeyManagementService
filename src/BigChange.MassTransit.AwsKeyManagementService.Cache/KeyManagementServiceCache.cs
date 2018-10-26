@@ -49,6 +49,8 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Cache
             {
                 var item = _keyManagementService.GenerateDataKey(keyId, encryptionContext, keySpec);
 
+                _dataKeyCache.Set(identifier, item);
+
                 return item;
             }
 

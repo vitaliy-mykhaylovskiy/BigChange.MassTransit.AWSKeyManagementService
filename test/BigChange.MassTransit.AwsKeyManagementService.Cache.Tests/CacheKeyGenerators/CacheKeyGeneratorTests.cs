@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using BigChange.MassTransit.AwsKeyManagementService.Cache.CacheKeyGenerators;
 using NUnit.Framework;
 using Shouldly;
@@ -12,26 +13,18 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Cache.Tests.CacheKeyGene
         [Test]
         public void ShouldGenerateCacheKeyForKeydId()
         {
-            var _expectedKeyId = "keyid";
-            var _expectedDictionaryKey1 = "dickey1";
-            var _expectedDictionaryValue1 = "valuekey1";
-            var _expectedDictionaryKey2 = "dickey2";
-            var _expectedDictionaryValue2 = "valuekey2";
+            var keyId = Guid.NewGuid().ToString();
 
-            var key = new CacheKeyGenerator().Generate(_expectedKeyId,
-                new Dictionary<string, string>()
-                {
-                    {_expectedDictionaryKey1, _expectedDictionaryValue1},
-                    {_expectedDictionaryKey2, _expectedDictionaryValue2}
-                }
-            );
+            var encryptionContext = new Dictionary<string, string>()
+            {
+                { Guid.NewGuid().ToString(), Guid.NewGuid().ToString()},
+                { Guid.NewGuid().ToString(), Guid.NewGuid().ToString()},
+            };
 
-            key.ShouldBe(string.Join("",
-                new[]
-                {
-                    _expectedKeyId, _expectedDictionaryKey1, _expectedDictionaryValue1, _expectedDictionaryKey2,
-                    _expectedDictionaryValue2
-                }));
+            var sut = new CacheKeyGenerator();
+            var key = sut.Generate(new DataKeyIdentifier(keyId, encryptionContext));
+
+            key.ShouldBe(string.Join("", keyId, encryptionContext.Keys.ElementAt(0), encryptionContext.Values.ElementAt(0), encryptionContext.Keys.ElementAt(1), encryptionContext.Values.ElementAt(1)));
         }
 
         [Test]
@@ -39,25 +32,16 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Cache.Tests.CacheKeyGene
         {
             var ciphertextBlob = new byte[] {1, 2, 3, 4};
 
-            var _expectedDictionaryKey1 = "dickey1";
-            var _expectedDictionaryValue1 = "valuekey1";
-            var _expectedDictionaryKey2 = "dickey2";
-            var _expectedDictionaryValue2 = "valuekey2";
+            var encryptionContext = new Dictionary<string, string>()
+            {
+                { Guid.NewGuid().ToString(), Guid.NewGuid().ToString()},
+                { Guid.NewGuid().ToString(), Guid.NewGuid().ToString()},
+            };
 
-            var key = new CacheKeyGenerator().Generate(ciphertextBlob,
-                new Dictionary<string, string>()
-                {
-                    {_expectedDictionaryKey1, _expectedDictionaryValue1},
-                    {_expectedDictionaryKey2, _expectedDictionaryValue2}
-                }
-            );
+            var sut = new CacheKeyGenerator();
+            var key = sut.Generate(new DecryptIdentifier(ciphertextBlob, encryptionContext));
 
-            key.ShouldBe(string.Join("",
-                new[]
-                {
-                    Convert.ToBase64String(ciphertextBlob), _expectedDictionaryKey1, _expectedDictionaryValue1,
-                    _expectedDictionaryKey2, _expectedDictionaryValue2
-                }));
+            key.ShouldBe(string.Join("", Convert.ToBase64String(ciphertextBlob), encryptionContext.Keys.ElementAt(0), encryptionContext.Values.ElementAt(0), encryptionContext.Keys.ElementAt(1), encryptionContext.Values.ElementAt(1)));
         }
     }
 }

@@ -54,7 +54,7 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Cache.Tests.RabbitMq
         protected override void ConfigureRabbitMqBus(IRabbitMqBusFactoryConfigurator configurator)
         {
             configurator.UseAwsKeyManagementServiceSerializerWithMemoryCache(_keyId, _amazonKeyManagementService.Object,
-                Options.Create(new MemoryDistributedCacheOptions()));
+                Options.Create(new MemoryDistributedCacheOptions()), new AbsoluteExpirationRelativeToNowOptionsFactory(TimeSpan.FromMinutes(1)));
 
             base.ConfigureRabbitMqBus(configurator);
         }

@@ -16,7 +16,7 @@ namespace BigChange.MassTransit.AwsKeyManagementService.Cache
         {
             return new DistributedCacheEntryOptions
             {
-                AbsoluteExpirationRelativeToNow = _absoluteExpirationRelativeToNow;
+                AbsoluteExpirationRelativeToNow = _absoluteExpirationRelativeToNow
             };
         }
     }

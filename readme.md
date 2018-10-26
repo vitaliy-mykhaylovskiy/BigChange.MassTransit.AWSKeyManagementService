@@ -46,9 +46,10 @@ configurator.UseAwsKeyManagementServiceSerializer(RegionEndpoint.EUWest1, "alias
 You can specify `MemoryDistributedCacheOptions` to configure options for caching CMK in memory:
 
 ```csharp
-configurator.UseAwsKeyManagementServiceSerializerWithMemoryCache(RegionEndpoint.EUWest1, "alias/masstransit", Options.Create(new MemoryDistributedCacheOptions()));
+configurator.UseAwsKeyManagementServiceSerializerWithMemoryCache("alias/masstransit", Options.Create(new MemoryDistributedCacheOptions()));
 
 ```
+
 
 ### Configure with a Key Id and a custom encryption context builder
 

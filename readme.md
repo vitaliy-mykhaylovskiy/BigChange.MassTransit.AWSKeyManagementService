@@ -49,7 +49,10 @@ You can specify `MemoryDistributedCacheOptions` to configure options for caching
 configurator.UseAwsKeyManagementServiceSerializerWithMemoryCache("alias/masstransit", Options.Create(new MemoryDistributedCacheOptions()));
 
 ```
-
+or use `IDistributedCache` implementations for [Redis](https://docs.microsoft.com/en-gb/dotnet/api/microsoft.extensions.caching.redis.rediscache?view=aspnetcore-2.1) and [Sql Server](https://docs.microsoft.com/en-gb/dotnet/api/microsoft.extensions.caching.sqlserver.sqlservercache?view=aspnetcore-2.1)
+```csharp
+configurator.UseAwsKeyManagementServiceSerializerWithCache("alias/masstransit", new RedisCache(Options.Create(new RedisCacheOptions()));
+```
 
 ### Configure with a Key Id and a custom encryption context builder
 

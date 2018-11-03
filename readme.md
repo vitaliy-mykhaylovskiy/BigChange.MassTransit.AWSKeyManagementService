@@ -2,6 +2,11 @@
 
 Encrypt your MassTransit messages with AWS Key Management Service (KMS)!
 
+[![install from nuget](http://img.shields.io/nuget/v/BigChange.MassTransit.AWSKeyManagementService.svg?style=flat-square)](https://www.nuget.org/packages/BigChange.MassTransit.AWSKeyManagementService)
+[![downloads](http://img.shields.io/nuget/dt/BigChange.MassTransit.AWSKeyManagementService.svg?style=flat-square)](https://www.nuget.org/packages/BigChange.MassTransit.AWSKeyManagementService)
+[![Build status](https://ci.appveyor.com/api/projects/status/msgf0c5uim69f1ww/branch/master?svg=true)](https://ci.appveyor.com/project/BigChangeApps/bigchange-masstransit-awskeymanagementservice/branch/master)
+
+
 ## Get started
 
 ### Install the NuGet Package
